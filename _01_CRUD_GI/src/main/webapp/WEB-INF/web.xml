@@ -19,4 +19,14 @@
     <servlet-name>CRUD</servlet-name>
     <url-pattern>/CRUD</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>CRUD_DELETE</display-name>
+    <servlet-name>CRUD_DELETE</servlet-name>
+    <servlet-class>CRUD_DELETE</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CRUD_DELETE</servlet-name>
+    <url-pattern>/CRUD_DELETE</url-pattern>
+  </servlet-mapping>
 </web-app>

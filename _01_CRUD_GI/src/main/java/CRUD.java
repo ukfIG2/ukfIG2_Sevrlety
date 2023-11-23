@@ -18,18 +18,18 @@ import java.sql.Statement;
 public class CRUD extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private static final String r1 = "id";
+	 static final String r1 = "id";
 	private static final String r2 = "Datum";
 	private static final String r3 = "Prijem";
 	private static final String r4 = "Vydaj";
 	private static final String r5 = "Poznamka";
 	
-	private static final String databaza = "_01_CRUD";
-	private static final String tabulka = "Prijmy_Vydaje";
+	public static final String databaza = "_01_CRUD";
+	public static final String tabulka = "Prijmy_Vydaje";
 	
-	private static final String URL = "jdbc:mysql://localhost/" + databaza;
-	private static final String username = "root";
-	private static final String password = "";
+	public static final String URL = "jdbc:mysql://localhost/" + databaza;
+	public static final String username = "root";
+	public static final String password = "";
 	
 	
        
@@ -45,31 +45,50 @@ public class CRUD extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: Tuna to funguje.");
 		PrintWriter out = response.getWriter();
-		try {
-		Class.forName("com.mysql.cj.jdbc.Driver");	
-		Connection con = DriverManager.getConnection(URL, username, password);
-		Statement stmt = con.createStatement();
-		String sql = "SELECT * FROM " + tabulka;
-		ResultSet rs = stmt.executeQuery(sql);
-		while (rs.next()) {
-			out.print(r1 + " " +rs.getString(r1)+" ");
-			out.print(r2 + " " +rs.getString(r2)+" ");
-			out.print(r3 + " " +rs.getString(r3)+" ");
-			out.print(r4 + " " +rs.getString(r4)+" ");
-			out.print(r5 + " " +rs.getString(r5)+" ");
-			out.print("\n");
-			
-			
-		}
-		out.close(); stmt.close(); con.close();
-		}
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println("Dodrbalo sa: " + e);
-		}
+
+	    try {
+	        Class.forName("com.mysql.cj.jdbc.Driver");
+	        Connection con = DriverManager.getConnection(URL, username, password);
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM " + tabulka;
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        out.print("<body>");
+	        out.println("<style>table, th, td{");
+	        out.println("border: 1px solid;");
+	        out.println("}\n</style>");
+	        out.println("<table>");
+	        out.println("<tr>");
+	        out.println("<th>" + r1 + "</th>");
+	        out.println("<th>" + r2 + "</th>");
+	        out.println("<th>" + r3 + "</th>");
+	        out.println("<th>" + r4 + "</th>");
+	        out.println("<th>" + r5 + "</th>");
+	        out.println("</tr>");
+
+	        while (rs.next()) {
+	            out.println("<tr>");
+	            out.println("<td>" + rs.getString(r1) + "</td>");
+	            out.println("<td>" + rs.getString(r2) + "</td>");
+	            out.println("<td>" + rs.getString(r3) + "</td>");
+	            out.println("<td>" + rs.getString(r4) + "</td>");
+	            out.println("<td>" + rs.getString(r5) + "</td>");
+	           // out.println("<td><button><a href='DeleteServlet?id=" + rs.getString(r1) + "'>Delete</a></button></td>");
+	            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(r1) + "'><button>Vymazat zaznam</button></a></td>");
+	            
+	            out.println("</tr>");
+	        }
+
+	        out.println("</table>");
+	        out.println("</body>");
+
+	        out.close();
+	        stmt.close();
+	        con.close();
+	    } catch (Exception e) {
+	        System.out.println("Dodrbalo sa: " + e);
+	    }
 	}
 
 	/**
