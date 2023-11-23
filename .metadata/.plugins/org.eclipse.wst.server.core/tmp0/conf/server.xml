@@ -140,7 +140,7 @@
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
 
-      <Context docBase="/home/ivang/Desktop/eclipse/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ROOT" path="" reloadable="false"/><Context docBase="/home/ivang/Desktop/eclipse/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/OT3" path="/OT3" reloadable="true" source="org.eclipse.jst.jee.server:OT3"/></Host>
+      <Context docBase="/home/ivang/Desktop/eclipse/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ROOT" path="" reloadable="false"/><Context docBase="/home/ivang/Desktop/eclipse/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/OT3" path="/OT3" reloadable="true" source="org.eclipse.jst.jee.server:OT3"/><Context docBase="/home/ivang/Desktop/eclipse/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/_01_CRUD_GI" path="/_01_CRUD_GI" reloadable="true" source="org.eclipse.jst.jee.server:_01_CRUD_GI"/></Host>
     </Engine>
   </Service>
 </Server>
