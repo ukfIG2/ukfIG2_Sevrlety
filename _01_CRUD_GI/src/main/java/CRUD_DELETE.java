@@ -35,23 +35,14 @@ public class CRUD_DELETE extends HttpServlet {
 	        Connection con = DriverManager.getConnection(CRUD.URL, CRUD.username, CRUD.password);
 	        Statement stmt = con.createStatement();
 
-	        // Assuming 'id' is the primary key column
 	        String sql = "DELETE FROM " + CRUD.tabulka + " WHERE id = '" + id + "'";
-	        //int rowsAffected = stmt.executeUpdate(sql);
 	        stmt.executeUpdate(sql);
 	        response.sendRedirect(request.getContextPath() + "/CRUD");
-	        /*if (rowsAffected > 0) {
-	            // Successfully deleted
-	            response.sendRedirect(request.getContextPath() + "/CRUD"); // Redirect back to the main page
-	        } else {
-	            // Deletion failed
-	            response.getWriter().println("Error deleting row.");
-	        }*/
 
 	        stmt.close();
 	        con.close();
 	    } catch (Exception e) {
-	        System.out.println("Dodrbalo sa: " + e);
+	        System.out.println("Pokazilo sa v DELETE: " + e);
 	    }
 		//
 	}

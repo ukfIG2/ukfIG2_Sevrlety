@@ -29,4 +29,24 @@
     <servlet-name>CRUD_DELETE</servlet-name>
     <url-pattern>/CRUD_DELETE</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>CRUD_INSERT</display-name>
+    <servlet-name>CRUD_INSERT</servlet-name>
+    <servlet-class>CRUD_INSERT</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CRUD_INSERT</servlet-name>
+    <url-pattern>/CRUD_INSERT</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>CRUD_EDIT</display-name>
+    <servlet-name>CRUD_EDIT</servlet-name>
+    <servlet-class>CRUD_EDIT</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CRUD_EDIT</servlet-name>
+    <url-pattern>/CRUD_EDIT</url-pattern>
+  </servlet-mapping>
 </web-app>
