@@ -104,6 +104,7 @@ public class Hlavna_obrazovka extends HttpServlet {
 	        out.println("<br>");
 	        
 	        stmt.close();
+	        //out.flush(); //??
 				
 		} catch (Exception e) {
 			System.out.println("V doGet 01: " + e);
@@ -176,8 +177,52 @@ public class Hlavna_obrazovka extends HttpServlet {
 			System.out.println("V doGet 03: " + e);
 			}
 		
-		out.close();
-	}
+	/////////////////////hokus pokus
+	try {
+		Statement stmt = con.createStatement();
+		String sql = "SELECT " + 
+				tO + "." + tOid + " AS " + tOid + ", " + 
+                tO + "." + tOdatum + " AS " + tOdatum + ", " + 
+                tZ + "." + tZmeno + " AS " + tZmeno + ", " +
+                tZ + "." + tZpriezvisko + " AS " + tZpriezvisko + ", " +
+                tT + "." + tTnazov + " AS " + tTnazov + 
+     " FROM " + tO + " INNER JOIN " + tZ + " ON " + tO + "." + tOidZ + " = " + tZ + "." + tZid +
+    " INNER JOIN " + tT + " ON " + tO + "." + tOidT + " = " + tT + "." + tTid;
+
+        ResultSet rs = stmt.executeQuery(sql);
+
+        out.println("<h2>Tabulka objednavok</h2>");
+        out.println("<table>");
+        out.println("<tr>");
+        out.println("<th>" + tOid + "</th>");
+        out.println("<th>" + tOdatum + "</th>");
+        out.println("<th>" + tZmeno + "</th>");
+        out.println("<th>" + tZpriezvisko + "</th>");
+        out.println("<th>" + tOidT + "</th>");
+        out.println("</tr>");
+        while (rs.next()) {
+            out.println("<tr>");
+            out.println("<td>" + rs.getString(tOid) + "</td>");
+            out.println("<td>" + rs.getString(tOdatum) + "</td>");
+            out.println("<td>" + rs.getString(tZmeno) + "</td>");
+            out.println("<td>" + rs.getString(tZpriezvisko) + "</td>");
+            out.println("<td>" + rs.getString(tTnazov) + "</td>");
+            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(tOid) + "'><button>Vymazat zaznam</button></a></td>");
+            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tOid) + "'><button>Upravit zaznam</button></a></td>");
+            out.println("</tr>");
+        }
+        out.println("</table>");
+        
+        out.println("<br>");
+        
+        stmt.close();
+			
+	} catch (Exception e) {
+		System.out.println("V doGet 04: " + e);
+		}
+	
+	out.close();
+}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
