@@ -19,4 +19,14 @@
     <servlet-name>Hlavna_obrazovka</servlet-name>
     <url-pattern>/Hlavna_obrazovka</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>SELECT_tabulka_1</display-name>
+    <servlet-name>SELECT_tabulka_1</servlet-name>
+    <servlet-class>SELECT_tabulka_1</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SELECT_tabulka_1</servlet-name>
+    <url-pattern>/SELECT_tabulka_1</url-pattern>
+  </servlet-mapping>
 </web-app>

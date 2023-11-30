@@ -18,30 +18,30 @@ import java.sql.Statement;
  */
 public class Hlavna_obrazovka extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	public final String databaza = "_02_Objednavky";
-	public final String URL = "jdbc:mysql://localhost/" + databaza;
-	public final String username = "root";
-	public final String password = "";
+	public final static String databaza = "_02_Objednavky";
+	public final static String URL = "jdbc:mysql://localhost/" + databaza;
+	public final static String username = "root";
+	public final static String password = "";
 	
-	public final String tO = "Objednavky";
-	public final String tOid = "idObjednavky";
-	public final String tOdatum = "Datum_objednavky";
-	public final String tOidZ = "id_Zakaznikov";
-	public final String tOidT = "idTovar";
+	public final static String tO = "Objednavky";
+	public final static String tOid = "idObjednavky";
+	public final static String tOdatum = "Datum_objednavky";
+	public final static String tOidZ = "id_Zakaznikov";
+	public final static String tOidT = "idTovar";
 	
 	
-	public final String tZ = "Zakaznici";
-	public final String tZid = "id_Zakaznikov";
-	public final String tZmeno = "Meno_zakaznika";
-	public final String tZpriezvisko = "Priezvisko_zakaznika";
-	public final String tZico = "ICO";
-	public final String tZadresa = "Adresa";
+	public final static String tZ = "Zakaznici";
+	public final static String tZid = "id_Zakaznikov";
+	public final static String tZmeno = "Meno_zakaznika";
+	public final static String tZpriezvisko = "Priezvisko_zakaznika";
+	public final static String tZico = "ICO";
+	public final static String tZadresa = "Adresa";
 	
-	public final String tT = "Tovar";
-	public final String tTid = "idTovar";
-	public final String tTnazov = "Nazov_tovaru";
-	public final String tTcena = "Cena_tovaru";
-	public final String tThodnotenie = "Hodnotenie";
+	public final static String tT = "Tovar";
+	public final static String tTid = "idTovar";
+	public final static String tTnazov = "Nazov_tovaru";
+	public final static String tTcena = "Cena_tovaru";
+	public final static String tThodnotenie = "Hodnotenie";
 	
 	private Connection con;
 	
@@ -100,6 +100,8 @@ public class Hlavna_obrazovka extends HttpServlet {
 	            out.println("</tr>");
 	        }
 	        out.println("</table>");
+	        out.println("<br>");
+	        out.println("<a href=SELECT_tabulka_1><button>Prepnut na samostatnu tabulku</button></a>");
 	        
 	        out.println("<br>");
 	        
