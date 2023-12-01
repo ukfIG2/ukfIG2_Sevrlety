@@ -1,5 +1,6 @@
 
 
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -26,9 +28,20 @@ public class SELECT_tabulka_1 extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+    public void init(ServletConfig config) throws ServletException {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection(Hlavna_obrazovka.URL, Hlavna_obrazovka.username, Hlavna_obrazovka.password);
+		} catch (Exception e) {
+			System.out.println("V init: " + e);
+		}
+	}
+
+	public void destroy() {
+		try {con.close();} catch(Exception e) {System.out.println("V destroy: " + e);	
+		}
+	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		

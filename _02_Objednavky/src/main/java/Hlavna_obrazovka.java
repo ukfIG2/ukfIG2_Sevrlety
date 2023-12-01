@@ -99,10 +99,7 @@ public class Hlavna_obrazovka extends HttpServlet {
 	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tZid) + "'><button>Upravit zaznam</button></a></td>");
 	            out.println("</tr>");
 	        }
-	        out.println("</table>");
-	        out.println("<br>");
-	        out.println("<a href=SELECT_tabulka_1><button>Prepnut na samostatnu tabulku</button></a>");
-	        
+	        out.println("</table>");	        
 	        out.println("<br>");
 	        
 	        stmt.close();
