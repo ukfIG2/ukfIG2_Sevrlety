@@ -14,20 +14,20 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 /**
- * Servlet implementation class SELECT_tabulka_1
+ * Servlet implementation class SELECT_Zakaznici
  */
-public class SELECT_tabulka_1 extends HttpServlet {
+public class SELECT_Zakaznici extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection con;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SELECT_tabulka_1() {
+    public SELECT_Zakaznici() {
         super();
         // TODO Auto-generated constructor stub
     }
-
+    	
     public void init(ServletConfig config) throws ServletException {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -41,7 +41,7 @@ public class SELECT_tabulka_1 extends HttpServlet {
 		try {con.close();} catch(Exception e) {System.out.println("V destroy: " + e);	
 		}
 	}
-
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		
@@ -54,6 +54,7 @@ public class SELECT_tabulka_1 extends HttpServlet {
 	        out.println("<style>table, th, td{");
 	        out.println("border: 1px solid;");
 	        out.println("}\n</style>");
+	        
 	        out.println("<h2>Tabulka zakaznikov</h2>");
 	        out.println("<table>");
 	        out.println("<tr>");
@@ -74,15 +75,21 @@ public class SELECT_tabulka_1 extends HttpServlet {
 	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(Hlavna_obrazovka.tZid) + "'><button>Upravit zaznam</button></a></td>");
 	            out.println("</tr>");
 	        }
-	        out.println("</table>");
-	        
+	        out.println("</table>");	        
 	        out.println("<br>");
 	        
+	        out.println("<a href='Hlavna_obrazovka'><button>Zobrazit tabulku OBJEDNAVKY</button></a>");
+	        
 	        stmt.close();
+	        //out.flush(); //??
+				
 		} catch (Exception e) {
-			System.out.println("V doGet 01: " + e);
+			System.out.println("V select_zakaznici: " + e);
 			}
+		out.close();
 	}
+
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);

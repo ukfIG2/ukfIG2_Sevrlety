@@ -29,4 +29,24 @@
     <servlet-name>SELECT_tabulka_1</servlet-name>
     <url-pattern>/SELECT_tabulka_1</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>SELECT_Zakaznici</display-name>
+    <servlet-name>SELECT_Zakaznici</servlet-name>
+    <servlet-class>SELECT_Zakaznici</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SELECT_Zakaznici</servlet-name>
+    <url-pattern>/SELECT_Zakaznici</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>SELECT_Tovar</display-name>
+    <servlet-name>SELECT_Tovar</servlet-name>
+    <servlet-class>SELECT_Tovar</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SELECT_Tovar</servlet-name>
+    <url-pattern>/SELECT_Tovar</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -70,113 +70,6 @@ public class Hlavna_obrazovka extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		
-		try {
-			Statement stmt = con.createStatement();
-	        String sql = "SELECT * FROM " + tZ;
-	        ResultSet rs = stmt.executeQuery(sql);
-	        
-	        out.print("<body>");
-	        out.println("<style>table, th, td{");
-	        out.println("border: 1px solid;");
-	        out.println("}\n</style>");
-	        out.println("<h2>Tabulka zakaznikov</h2>");
-	        out.println("<table>");
-	        out.println("<tr>");
-	        out.println("<th>" + tZid + "</th>");
-	        out.println("<th>" + tZmeno + "</th>");
-	        out.println("<th>" + tZpriezvisko + "</th>");
-	        out.println("<th>" + tZico + "</th>");
-	        out.println("<th>" + tZadresa + "</th>");
-	        out.println("</tr>");
-	        while (rs.next()) {
-	            out.println("<tr>");
-	            out.println("<td>" + rs.getString(tZid) + "</td>");
-	            out.println("<td>" + rs.getString(tZmeno) + "</td>");
-	            out.println("<td>" + rs.getString(tZpriezvisko) + "</td>");
-	            out.println("<td>" + rs.getString(tZico) + "</td>");
-	            out.println("<td>" + rs.getString(tZadresa) + "</td>");
-	            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(tZid) + "'><button>Vymazat zaznam</button></a></td>");
-	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tZid) + "'><button>Upravit zaznam</button></a></td>");
-	            out.println("</tr>");
-	        }
-	        out.println("</table>");	        
-	        out.println("<br>");
-	        
-	        stmt.close();
-	        //out.flush(); //??
-				
-		} catch (Exception e) {
-			System.out.println("V doGet 01: " + e);
-			}
-		////////////////////////////////////////////tabulka 2
-		try {
-			Statement stmt = con.createStatement();
-	        String sql = "SELECT * FROM " + tT;
-	        ResultSet rs = stmt.executeQuery(sql);
-
-	        out.println("<h2>Tabulka tovarov</h2>");
-	        out.println("<table>");
-	        out.println("<tr>");
-	        out.println("<th>" + tTid + "</th>");
-	        out.println("<th>" + tTnazov + "</th>");
-	        out.println("<th>" + tTcena + "</th>");
-	        out.println("<th>" + tThodnotenie + "</th>");
-	        out.println("</tr>");
-	        while (rs.next()) {
-	            out.println("<tr>");
-	            out.println("<td>" + rs.getString(tTid) + "</td>");
-	            out.println("<td>" + rs.getString(tTnazov) + "</td>");
-	            out.println("<td>" + rs.getString(tTcena) + "</td>");
-	            out.println("<td>" + rs.getString(tThodnotenie) + "</td>");
-	            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(tTid) + "'><button>Vymazat zaznam</button></a></td>");
-	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tTid) + "'><button>Upravit zaznam</button></a></td>");
-	            out.println("</tr>");
-	        }
-	        out.println("</table>");
-	        
-	        out.println("<br>");
-	        
-	        stmt.close();
-				
-		} catch (Exception e) {
-			System.out.println("V doGet 02: " + e);
-			}
-		
-		/////////////////////////////////Taulka 03
-		try {
-			Statement stmt = con.createStatement();
-	        String sql = "SELECT * FROM " + tO;
-	        ResultSet rs = stmt.executeQuery(sql);
-
-	        out.println("<h2>Tabulka objednavok</h2>");
-	        out.println("<table>");
-	        out.println("<tr>");
-	        out.println("<th>" + tOid + "</th>");
-	        out.println("<th>" + tOdatum + "</th>");
-	        out.println("<th>" + tOidZ + "</th>");
-	        out.println("<th>" + tOidT + "</th>");
-	        out.println("</tr>");
-	        while (rs.next()) {
-	            out.println("<tr>");
-	            out.println("<td>" + rs.getString(tOid) + "</td>");
-	            out.println("<td>" + rs.getString(tOdatum) + "</td>");
-	            out.println("<td>" + rs.getString(tOidZ) + "</td>");
-	            out.println("<td>" + rs.getString(tOidT) + "</td>");
-	            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(tOid) + "'><button>Vymazat zaznam</button></a></td>");
-	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tOid) + "'><button>Upravit zaznam</button></a></td>");
-	            out.println("</tr>");
-	        }
-	        out.println("</table>");
-	        
-	        out.println("<br>");
-	        
-	        stmt.close();
-				
-		} catch (Exception e) {
-			System.out.println("V doGet 03: " + e);
-			}
-		
-	/////////////////////hokus pokus
 	try {
 		Statement stmt = con.createStatement();
 		String sql = "SELECT " + 
@@ -189,7 +82,12 @@ public class Hlavna_obrazovka extends HttpServlet {
     " INNER JOIN " + tT + " ON " + tO + "." + tOidT + " = " + tT + "." + tTid;
 
         ResultSet rs = stmt.executeQuery(sql);
-
+        
+        out.println("<body>");
+        out.println("<style>table, th, td{");
+        out.println("border: 1px solid;");
+        out.println("}\n</style>");
+        
         out.println("<h2>Tabulka objednavok</h2>");
         out.println("<table>");
         out.println("<tr>");
@@ -211,13 +109,15 @@ public class Hlavna_obrazovka extends HttpServlet {
             out.println("</tr>");
         }
         out.println("</table>");
-        
         out.println("<br>");
+        out.println("<a href='SELECT_Zakaznici'><button>Zobrazit tabulku zakaznici</button></a>\t<a href='SELECT_Tovar'><button>Zobrazit tabulku tovar</button></a>");
+        
+        out.println("</body>");
         
         stmt.close();
 			
 	} catch (Exception e) {
-		System.out.println("V doGet 04: " + e);
+		System.out.println("V doGet spojovacia tabulka: " + e);
 		}
 	
 	out.close();

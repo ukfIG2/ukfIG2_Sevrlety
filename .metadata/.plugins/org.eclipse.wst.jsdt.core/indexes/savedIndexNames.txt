@@ -1,10 +1,6 @@
 INDEX VERSION 1.4+/home/ivang/Vsetko_s_eclipsom/ukfIG2_Sevrlety/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
-586988791.index
-4262636856.index
-2567762503.index
-544283765.index
-2363591780.index
 2287654343.index
+544283765.index
 3285472207.index
-3885959588.index
-4282378660.index
+2162179046.index
+586988791.index
