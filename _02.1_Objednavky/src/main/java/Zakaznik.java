@@ -248,23 +248,33 @@ public class Zakaznik extends HttpServlet {
 	        out.println("<h2>Upravit zaznam</h2>");
 	        out.println("<h3>Co chces zmen, ostatne nehaj napokoj</h3>");
 	        out.println("<form action='Zakaznik' method='post'>");
+	        out.println("<table>");
 
 	        while (rs.next()) {
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tZmeno + "'>" + tZmeno + ":</label></td>");
+	            out.println("<td><input type='text' name='" + tZmeno + "' value='" + rs.getString(tZmeno) + "'></td>");
+	            out.println("</tr>");
+
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tZpriezvisko + "'>" + tZpriezvisko + ":</label></td>");
+	            out.println("<td><input type='text' name='" + tZpriezvisko + "' value='" + rs.getString(tZpriezvisko) + "'></td>");
+	            out.println("</tr>");
+
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tZico + "'>" + tZico + ":</label></td>");
+	            out.println("<td><input type='text' name='" + tZico + "' value='" + rs.getString(tZico) + "'></td>");
+	            out.println("</tr>");
+
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tZadresa + "'>" + tZadresa + ":</label></td>");
+	            out.println("<td><input type='text' name='" + tZadresa + "' value='" + rs.getString(tZadresa) + "'></td>");
+	            out.println("</tr>");
+
 	            out.println("<input type='hidden' name='" + tZid + "' value='" + rs.getString(tZid) + "'>");
-
-	            out.println("<label for='" + tZmeno + "'>" + tZmeno + ":</label>");
-	            out.println("<input type='text' name='" + tZmeno + "' value='" + rs.getString(tZmeno) + "'><br>");
-
-	            out.println("<label for='" + tZpriezvisko + "'>" + tZpriezvisko + ":</label>");
-	            out.println("<input type='text' name='" + tZpriezvisko + "' value='" + rs.getString(tZpriezvisko) + "'><br>");
-
-	            out.println("<label for='" + tZico + "'>" + tZico + ":</label>");
-	            out.println("<input type='text' name='" + tZico + "' value='" + rs.getString(tZico) + "'><br>");
-
-	            out.println("<label for='" + tZadresa + "'>" + tZadresa + ":</label>");
-	            out.println("<input type='text' name='" + tZadresa + "' value='" + rs.getString(tZadresa) + "'><br>");
 	        }
 
+	        out.println("</table>");
 	        out.println("<input type='hidden' name='operacia' value='UlozitUpravu'>");
 	        out.println("<input type='submit' value='Ulozit upravu'>");
 	        out.println("</form>");
@@ -272,6 +282,7 @@ public class Zakaznik extends HttpServlet {
 	        System.out.println("Zakaznik uprav polozku: " + e);
 	    }
 	}
+
 
 	private void UlozitUpravu(PrintWriter out, String id, String meno, String priezvisko, String ico, String adresa) {
 	    try {
