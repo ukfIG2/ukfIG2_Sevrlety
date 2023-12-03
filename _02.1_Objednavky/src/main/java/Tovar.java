@@ -72,7 +72,7 @@ PrintWriter out = response.getWriter();
 
 		switch(operacia) {
 		case "Vymazat":
-			VymazPolozku(out, request.getParameter(tTid));
+			VymazPolozku(request, response, request.getParameter(tTid));
 			break;
 		case "Pridat":
 			PridatPolozku(out, request.getParameter(tTnazov), request.getParameter(tTcena), request.getParameter(tThodnotenie));
@@ -203,22 +203,24 @@ PrintWriter out = response.getWriter();
 	    }
 	}
 
-	private void VymazPolozku(PrintWriter out, String id) {
+	private void VymazPolozku(HttpServletRequest request, HttpServletResponse response, String id) {
 	    try {
 	        Statement stmt = con.createStatement();
 	        String sql = "DELETE FROM Tovar WHERE " + tTid + " = " + id;
 	        int pocet = stmt.executeUpdate(sql);
 	        //out.print("Bolo odstranenych " + pocet + " zaznamov.<br/>");
-	    } /*catch (Exception e) {
-	        System.out.println("Tovar vymaz polocku: " + e);
-	    }*/
-	    catch (SQLIntegrityConstraintViolationException f) {
-	    	System.out.println("Nemozes vymazat, lebo ju uz pouzivas");
-	    	///////////////////////////////////////////////////////////////////////////Daj tam potom este aj out.print
+	    } catch (SQLIntegrityConstraintViolationException f) {
+	        try {
+	            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/DELETE.html"));
+	        } catch (IOException e) {
+	            System.out.println("Error redirecting: " + e);
+	        }
 	    } catch (SQLException e) {
-	    	System.out.println("Tovar vymaz polocku: " + e);	
+	        System.out.println("Tovar vymaz polocku: " + e);
 	    }
 	}
+
+
 
 	private void UpravitPolozku(PrintWriter out, String id) {
 	    try {

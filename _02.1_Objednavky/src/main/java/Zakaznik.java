@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 public class Zakaznik extends HttpServlet {
@@ -68,7 +69,7 @@ public class Zakaznik extends HttpServlet {
 
 		switch(operacia) {
 		case "Vymazat":
-			VymazPolozku(out, request.getParameter(tZid));
+			VymazPolozku(request, response, out, request.getParameter(tZid));
 			break;
 		case "Pridat":
 			PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
@@ -206,13 +207,19 @@ public class Zakaznik extends HttpServlet {
 		
 	}
 	
-	private void VymazPolozku(PrintWriter out, String id) {
+	private void VymazPolozku(HttpServletRequest request, HttpServletResponse response, PrintWriter out, String id) {
 		    try {
 		        Statement stmt = con.createStatement();
 		        String sql = "DELETE FROM Zakaznici WHERE " + tZid + " = " + id;
 		        int pocet = stmt.executeUpdate(sql);
 		        //out.print("Bolo odstranenych " + pocet + " zaznamov.<br/>");
-		    } catch (Exception e) {
+		    } catch (SQLIntegrityConstraintViolationException f) {
+		        try {
+		            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/DELETE.html"));
+		        } catch (IOException e) {
+		            System.out.println("Error redirecting: " + e);
+		        }
+		    } catch (SQLException e) {
 		        System.out.println("Zakaznik vymaz polocku: " + e);
 		    }
 		}
