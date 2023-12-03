@@ -203,8 +203,6 @@ public class Zakaznik extends HttpServlet {
 		} catch (Exception e) {
 			System.out.println("Zakaznik pridaj zlozku nejde: " + e);
 		}
-		
-		
 	}
 	
 	private void VymazPolozku(HttpServletRequest request, HttpServletResponse response, PrintWriter out, String id) {

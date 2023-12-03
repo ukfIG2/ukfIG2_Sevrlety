@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 public class Objednavky extends HttpServlet {
@@ -62,7 +64,7 @@ public class Objednavky extends HttpServlet {
 	}
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-PrintWriter out = response.getWriter();
+		PrintWriter out = response.getWriter();
 		
 		if(con==null) {
 			out.println("Neni pripojena databaza");
@@ -78,28 +80,29 @@ PrintWriter out = response.getWriter();
 		}
 		else {System.out.println("Operacia "+operacia);}
 
-		//switch(operacia) {
-		/*case "Vymazat":
-			VymazPolozku(request, response, out, request.getParameter(tZid));
-			break;*/
-		/*case "Pridat":
-			PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
+		switch(operacia) {
+		case "Vymazat":
+			VymazPolozku(out, request.getParameter(tOid));
+			break;
+		case "Pridat":
+			//PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
+			PridatPolozku(out, request.getParameter(tOdatum), request.getParameter(tOidZ), request.getParameter(tOidT));
 			System.out.println("Operacia pridat prebehla");
-			break;*/
-		/*case "Upravit":
+			break;
+		case "Upravit":
 			System.out.println("case upravit");
-			UpravitPolozku(out, request.getParameter(tZid));
+			UpravitPolozku(out, request.getParameter(tOid));
 			break;
 		case "UlozitUpravu":
-            String id = request.getParameter(tZid);
-            String meno = request.getParameter(tZmeno);
-            String priezvisko = request.getParameter(tZpriezvisko);
-            String ico = request.getParameter(tZico);
-            String adresa = request.getParameter(tZadresa);
+		    String id = request.getParameter(tOid);
+		    String datum = request.getParameter(tOdatum);
+		    String idZakaznika = request.getParameter(tOidZ);
+		    String idTovar = request.getParameter(tOidT);
 
-            UlozitUpravu(out, id, meno, priezvisko, ico, adresa);
-            break;*/
-		//}
+		    UlozitUpravu(out, id, datum, idZakaznika, idTovar);
+		    break;
+
+		}
 
 		VypisDatabazu(out);
 		if(operacia.equals("addForm")) {ZobrazFormularPrePridanie(out); System.out.println(true);}
@@ -137,13 +140,26 @@ PrintWriter out = response.getWriter();
 	        out.println("</tr>");
 	        while (rs.next()) {
 	            out.println("<tr>");
+	            
+	            out.println("<form action='Objednavky' method='post'>");
+	 	        out.println("<input type=hidden name ="+ tOid +" value='"+rs.getString(tOid)+"'>");
+	 	        
 	            out.println("<td>" + rs.getString(tOid) + "</td>");
 	            out.println("<td>" + rs.getString(tOdatum) + "</td>");
 	            out.println("<td>" + rs.getString(tZmeno) + "</td>");
 	            out.println("<td>" + rs.getString(tZpriezvisko) + "</td>");
 	            out.println("<td>" + rs.getString(tTnazov) + "</td>");
-	            out.println("<td><a href='CRUD_DELETE?id=" + rs.getString(tOid) + "'><button>Vymazat zaznam</button></a></td>");
-	            out.println("<td><a href='CRUD_EDIT?id=" + rs.getString(tOid) + "'><button>Upravit zaznam</button></a></td>");
+	    
+	            out.println("<input type=hidden name='operacia' value='Vymazat'>");
+	            out.println("<td><input type=submit value='Vymaz zaznam'></td>");
+	            out.println("</form>");
+	            
+	            out.println("<form action='Objednavky' method='post'>");
+	 	        out.println("<input type=hidden name ="+ tOid +" value='"+rs.getString(tOid)+"'>");
+	            out.println("<input type=hidden name='operacia' value='Upravit'>");
+	            out.println("<td><input type=submit value='Uprav zaznam'></td>");
+	            out.println("</form>");
+	            
 	            out.println("</tr>");
 	        }
 	        out.println("</table>");
@@ -167,31 +183,207 @@ PrintWriter out = response.getWriter();
 	}
 	
 	private void ZobrazFormularPrePridanie(PrintWriter out) {
-		out.println("<br>");
-		out.println("<br>");
-		out.println("<form action='Objednavky' method='post'>");
-		out.println("<table>");
-		
-        out.println("<tr>");
-        out.println("<td>"+tOdatum+"</td>");
-		out.println("<td><input type='text' name="+tOdatum+"></td>");
-		out.println("</tr>");
-		
-        out.println("<tr>");
-        out.println("<td>"+tOidZ+" v eurach</td>");
-		out.println("<td><input type='number' name="+tOidZ+"></td>");
-		out.println("</tr>");
-		
-        out.println("<tr>");
-        out.println("<td>"+tOidT+" od 0 do 5</td>");
-		out.println("<td><input type='number' name="+tOidT+"></td>");
-		out.println("</tr>");
-		out.println("</table>");
-		
-		out.println("<input type='hidden' name='operacia' value='Pridat'>");
-		out.println("<button type='submit'>Pridaj zaznam</button>");
-		out.println("</form>");
+	    out.println("<br>");
+	    out.println("<br>");
+	    out.println("<form action='Objednavky' method='post'>");
+	    out.println("<table>");
+
+	    out.println("<tr>");
+	    out.println("<td>" + tOdatum + "</td>");
+	    out.println("<td><input type='date' name=" + tOdatum + "></td>");
+	    out.println("</tr>");
+
+	    out.println("<tr>");
+	    out.println("<td>" + tOidZ + "</td>");
+	    out.println("<td><select name='" + tOidZ + "'>");
+
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM " + tZ;
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        while (rs.next()) {
+	            String customerId = rs.getString(tZid);
+	            String customerName = rs.getString(tZmeno) + " " + rs.getString(tZpriezvisko);
+	            out.println("<option value='" + customerId + "'>" + customerName + "</option>");
+	        }
+
+	        rs.close();
+	        stmt.close();
+	    } catch (Exception e) {
+	        System.out.println("Error in ZobrazFormularPrePridanie: " + e);
+	    }
+
+	    out.println("</select></td>");
+	    out.println("</tr>");
+
+	    
+	    out.println("<tr>");
+	    out.println("<td>" + tOidT + "</td>");
+	    out.println("<td><select name='" + tOidT + "'>");
+
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM " + tT;
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        while (rs.next()) {
+	            String productId = rs.getString(tTid);
+	            String productName = rs.getString(tTnazov);
+	            out.println("<option value='" + productId + "'>" + productName + "</option>");
+	        }
+
+	        rs.close();
+	        stmt.close();
+	    } catch (Exception e) {
+	        System.out.println("Error in ZobrazFormularPrePridanie: " + e);
+	    }
+
+	    out.println("</select></td>");
+	    out.println("</tr>");
+
+	    out.println("</table>");
+
+	    out.println("<input type='hidden' name='operacia' value='Pridat'>");
+	    out.println("<button type='submit'>Pridaj zaznam</button>");
+	    out.println("</form>");
 	}
+	
+	private void PridatPolozku(PrintWriter out, String datum, String idZakaznika, String idTovar) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "INSERT INTO " + tO + "(" + tOdatum + ", " + tOidZ + ", " + tOidT + ") VALUES(";
+	        sql += "'" + datum + "', ";
+	        sql += "'" + idZakaznika + "', ";
+	        sql += "'" + idTovar + "') ";
+
+	        int pocet = stmt.executeUpdate(sql);
+	        System.out.println("Pridat polozku SQL: " + sql);
+	        System.out.println("Bolo pridanych " + pocet + " zaznamov.<br/>");
+	    } catch (Exception e) {
+	        System.out.println("Objednavky pridaj polozku nejde: " + e);
+	    }
+	}
+
+	private void VymazPolozku(PrintWriter out, String id) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "DELETE FROM " + tO + " WHERE " + tOid + " = " + id;
+	        int pocet = stmt.executeUpdate(sql);
+	        System.out.println("VymazPolozku SQL: " + sql);
+	        System.out.println("Bolo odstranenych " + pocet + " zaznamov.<br/>");
+	    } catch (SQLIntegrityConstraintViolationException f) {
+	        
+	    } catch (SQLException e) {
+	        System.out.println("Objednavky vymaz polozku: " + e);
+	    }
+	}
+
+	private void UpravitPolozku(PrintWriter out, String id) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM " + tO + " WHERE " + tOid + " = " + id;
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        out.println("<h2>Upravit zaznam</h2>");
+	        out.println("<h3>Co chces zmenit, ostatne nechaj napokoj</h3>");
+	        out.println("<form action='Objednavky' method='post'>");
+	        out.println("<table>");
+
+	        while (rs.next()) {
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tOdatum + "'>" + tOdatum + ":</label></td>");
+	            out.println("<td><input type='date' name='" + tOdatum + "' value='" + rs.getString(tOdatum) + "'></td>");
+	            out.println("</tr>");
+
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tOidZ + "'>" + tOidZ + ":</label></td>");
+	            out.println("<td><select name='" + tOidZ + "'>");
+
+	            // Populate the dropdown with Zakaznici data
+	            try {
+	                Statement zakazniciStmt = con.createStatement();
+	                String zakazniciSql = "SELECT * FROM " + tZ;
+	                ResultSet zakazniciRs = zakazniciStmt.executeQuery(zakazniciSql);
+
+	                while (zakazniciRs.next()) {
+	                    String customerId = zakazniciRs.getString(tZid);
+	                    String customerName = zakazniciRs.getString(tZmeno) + " " + zakazniciRs.getString(tZpriezvisko);
+
+	                    if (customerId.equals(rs.getString(tOidZ))) {
+	                        out.println("<option value='" + customerId + "' selected>" + customerName + "</option>");
+	                    } else {
+	                        out.println("<option value='" + customerId + "'>" + customerName + "</option>");
+	                    }
+	                }
+
+	                zakazniciRs.close();
+	                zakazniciStmt.close();
+	            } catch (Exception e) {
+	                System.out.println("Error in UpravitPolozku (Zakaznici): " + e);
+	            }
+
+	            out.println("</select></td>");
+	            out.println("</tr>");
+
+	            out.println("<tr>");
+	            out.println("<td><label for='" + tOidT + "'>" + tOidT + ":</label></td>");
+	            out.println("<td><select name='" + tOidT + "'>");
+
+	            // Populate the dropdown with Tovar data
+	            try {
+	                Statement tovarStmt = con.createStatement();
+	                String tovarSql = "SELECT * FROM " + tT;
+	                ResultSet tovarRs = tovarStmt.executeQuery(tovarSql);
+
+	                while (tovarRs.next()) {
+	                    String productId = tovarRs.getString(tTid);
+	                    String productName = tovarRs.getString(tTnazov);
+
+	                    if (productId.equals(rs.getString(tOidT))) {
+	                        out.println("<option value='" + productId + "' selected>" + productName + "</option>");
+	                    } else {
+	                        out.println("<option value='" + productId + "'>" + productName + "</option>");
+	                    }
+	                }
+
+	                tovarRs.close();
+	                tovarStmt.close();
+	            } catch (Exception e) {
+	                System.out.println("Error in UpravitPolozku (Tovar): " + e);
+	            }
+
+	            out.println("</select></td>");
+	            out.println("</tr>");
+
+	            out.println("<input type='hidden' name='" + tOid + "' value='" + rs.getString(tOid) + "'>");
+	        }
+
+	        out.println("</table>");
+	        out.println("<input type='hidden' name='operacia' value='UlozitUpravu'>");
+	        out.println("<input type='submit' value='Ulozit upravu'>");
+	        out.println("</form>");
+	    } catch (Exception e) {
+	        System.out.println("Objednavky uprav polozku: " + e);
+	    }
+	}
+
+
+	private void UlozitUpravu(PrintWriter out, String id, String datum, String idZakaznika, String idTovar) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "UPDATE " + tO + " SET " +
+	                     tOdatum + "='" + datum + "', " +
+	                     tOidZ + "='" + idZakaznika + "', " +
+	                     tOidT + "='" + idTovar + "' " +
+	                     "WHERE " + tOid + "=" + id;
+	        int pocet = stmt.executeUpdate(sql);
+	        System.out.println("Uprava polozky uspesna, zmenenych riadkov: " + pocet);
+	    } catch (Exception e) {
+	        System.out.println("Objednavky uprav polozku: " + e);
+	    }
+	}
+
 	
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
