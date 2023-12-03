@@ -39,4 +39,14 @@
     <servlet-name>Tovar</servlet-name>
     <url-pattern>/Tovar</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>Objednavky</display-name>
+    <servlet-name>Objednavky</servlet-name>
+    <servlet-class>Objednavky</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Objednavky</servlet-name>
+    <url-pattern>/Objednavky</url-pattern>
+  </servlet-mapping>
 </web-app>

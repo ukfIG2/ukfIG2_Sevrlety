@@ -146,7 +146,7 @@ PrintWriter out = response.getWriter();
 	        
 	        out.println("<form action='Tovar' method='post'>");
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
-	        out.println("<input type='submit' value='pridat'>");
+	        out.println("<input type='submit' value='Pridat zaznam'>");
 	        out.println("</form>");
 	        	        
 	        stmt.close();

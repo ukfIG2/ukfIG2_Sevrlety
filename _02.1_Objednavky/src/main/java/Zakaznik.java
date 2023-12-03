@@ -145,7 +145,7 @@ public class Zakaznik extends HttpServlet {
 	        
 	        out.println("<form action='Zakaznik' method='post'>");
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
-	        out.println("<input type='submit' value='pridat'>");
+	        out.println("<input type='submit' value='Pridat zaznam'>");
 	        out.println("</form>");
 	        	        
 	        stmt.close();
