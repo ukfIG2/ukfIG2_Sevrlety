@@ -76,10 +76,8 @@ PrintWriter out = response.getWriter();
 			break;
 		case "Pridat":
 			PridatPolozku(out, request.getParameter(tTnazov), request.getParameter(tTcena), request.getParameter(tThodnotenie));
-			System.out.println("Operacia pridat prebehla");
 			break;
 		case "Upravit":
-			System.out.println("case upravit");
 			UpravitPolozku(out, request.getParameter(tTid));
 			break;
 		case "UlozitUpravu":
@@ -148,6 +146,9 @@ PrintWriter out = response.getWriter();
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
 	        out.println("<input type='submit' value='Pridat zaznam'>");
 	        out.println("</form>");
+	        
+	        out.println("<br>");
+	        out.println("<a href='Zakaznik'><button>Zobrazit tabulku zakaznikov</button></a>\t<a href='Objednavky'><button>Zobrazit tabulku objednavky</button></a>");
 	        	        
 	        stmt.close();
 	        //out.flush(); //?? treba?
@@ -169,7 +170,7 @@ PrintWriter out = response.getWriter();
 		
         out.println("<tr>");
         out.println("<td>"+tTcena+" v eurach</td>");
-		out.println("<td><input type='number' name="+tTcena+"></td>");
+		out.println("<td><input type='number' step='0.01' min='0' name="+tTcena+"></td>");
 		out.println("</tr>");
 		
         out.println("<tr>");
@@ -179,7 +180,7 @@ PrintWriter out = response.getWriter();
 		out.println("</table>");
 		
 		out.println("<input type='hidden' name='operacia' value='Pridat'>");
-		out.println("<button type='submit'>Pridaj zaznam</button>");
+		out.println("<button type='submit'>Uloz novy zaznam</button>");
 		out.println("</form>");
 	}
 		

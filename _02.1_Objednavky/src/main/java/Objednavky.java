@@ -71,7 +71,7 @@ public class Objednavky extends HttpServlet {
 			System.out.println("Pripojenie neni");
 			return;
 		}
-		else {System.out.println("Pripojenie je");}
+		else {/*System.out.println("Pripojenie je");*/}
 		
 		String operacia = request.getParameter("operacia");
 		if(operacia ==null) {													//asi neni najstasnejsie riesenie
@@ -85,12 +85,9 @@ public class Objednavky extends HttpServlet {
 			VymazPolozku(out, request.getParameter(tOid));
 			break;
 		case "Pridat":
-			//PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
 			PridatPolozku(out, request.getParameter(tOdatum), request.getParameter(tOidZ), request.getParameter(tOidT));
-			System.out.println("Operacia pridat prebehla");
 			break;
 		case "Upravit":
-			System.out.println("case upravit");
 			UpravitPolozku(out, request.getParameter(tOid));
 			break;
 		case "UlozitUpravu":
@@ -110,77 +107,99 @@ public class Objednavky extends HttpServlet {
 		out.close();
 	}
 
-	private void VypisDatabazu(PrintWriter out)		{
-		try {
-			Statement stmt = con.createStatement();
-			String sql = "SELECT " + 
-					tO + "." + tOid + " AS " + tOid + ", " + 
-	                tO + "." + tOdatum + " AS " + tOdatum + ", " + 
+	private void VypisDatabazu(PrintWriter out) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT " +
+	                tO + "." + tOid + " AS " + tOid + ", " +
+	                tO + "." + tOdatum + " AS " + tOdatum + ", " +
 	                tZ + "." + tZmeno + " AS " + tZmeno + ", " +
 	                tZ + "." + tZpriezvisko + " AS " + tZpriezvisko + ", " +
-	                tT + "." + tTnazov + " AS " + tTnazov + 
-	     " FROM " + tO + " INNER JOIN " + tZ + " ON " + tO + "." + tOidZ + " = " + tZ + "." + tZid +
-	    " INNER JOIN " + tT + " ON " + tO + "." + tOidT + " = " + tT + "." + tTid;
+	                tZ + "." + tZico + " AS " + tZico + ", " +
+	                tZ + "." + tZadresa + " AS " + tZadresa + ", " +
+	                tT + "." + tTnazov + " AS " + tTnazov + ", " +
+	                tT + "." + tTcena + " AS " + tTcena + ", " +
+	                tT + "." + tThodnotenie + " AS " + tThodnotenie +
+	                " FROM " + tO + " INNER JOIN " + tZ + " ON " + tO + "." + tOidZ + " = " + tZ + "." + tZid +
+	                " INNER JOIN " + tT + " ON " + tO + "." + tOidT + " = " + tT + "." + tTid;
 
 	        ResultSet rs = stmt.executeQuery(sql);
-	        
+
 	        out.println("<body>");
 	        out.println("<style>table, th, td{");
 	        out.println("border: 1px solid;");
 	        out.println("}\n</style>");
-	        
+
 	        out.println("<h2>Tabulka objednavok</h2>");
 	        out.println("<table>");
 	        out.println("<tr>");
 	        out.println("<th>" + tOid + "</th>");
 	        out.println("<th>" + tOdatum + "</th>");
+	        
+	        out.println("<th>XXX</th>"); // Gap added
+	        
 	        out.println("<th>" + tZmeno + "</th>");
 	        out.println("<th>" + tZpriezvisko + "</th>");
-	        out.println("<th>" + tOidT + "</th>");
+	        out.println("<th>" + tZico + "</th>");
+	        out.println("<th>" + tZadresa + "</th>");
+	        
+	        out.println("<th>XXX</th>"); // Gap added
+	        
+	        out.println("<th>" + tTnazov + "</th>");
+	        out.println("<th>" + tTcena + "</th>");
+	        out.println("<th>" + tThodnotenie + "</th>");
 	        out.println("</tr>");
 	        while (rs.next()) {
 	            out.println("<tr>");
-	            
+
 	            out.println("<form action='Objednavky' method='post'>");
-	 	        out.println("<input type=hidden name ="+ tOid +" value='"+rs.getString(tOid)+"'>");
-	 	        
+	            out.println("<input type=hidden name =" + tOid + " value='" + rs.getString(tOid) + "'>");
+
 	            out.println("<td>" + rs.getString(tOid) + "</td>");
 	            out.println("<td>" + rs.getString(tOdatum) + "</td>");
+	            
+	            out.println("<th>XXX</th>"); // Gap added
+	            
 	            out.println("<td>" + rs.getString(tZmeno) + "</td>");
 	            out.println("<td>" + rs.getString(tZpriezvisko) + "</td>");
+	            out.println("<td>" + rs.getString(tZico) + "</td>");
+	            out.println("<td>" + rs.getString(tZadresa) + "</td>");
+	            
+	            out.println("<th>XXX</th>"); // Gap added
+	            
 	            out.println("<td>" + rs.getString(tTnazov) + "</td>");
-	    
+	            out.println("<td>" + rs.getString(tTcena) + "</td>");
+	            out.println("<td>" + rs.getString(tThodnotenie) + "</td>");
+
 	            out.println("<input type=hidden name='operacia' value='Vymazat'>");
 	            out.println("<td><input type=submit value='Vymaz zaznam'></td>");
 	            out.println("</form>");
-	            
+
 	            out.println("<form action='Objednavky' method='post'>");
-	 	        out.println("<input type=hidden name ="+ tOid +" value='"+rs.getString(tOid)+"'>");
+	            out.println("<input type=hidden name =" + tOid + " value='" + rs.getString(tOid) + "'>");
 	            out.println("<input type=hidden name='operacia' value='Upravit'>");
 	            out.println("<td><input type=submit value='Uprav zaznam'></td>");
 	            out.println("</form>");
-	            
+
 	            out.println("</tr>");
 	        }
 	        out.println("</table>");
-	        
+
 	        out.println("<br>");
 	        out.println("<form action='Objednavky' method='post'>");
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
 	        out.println("<input type='submit' value='Pridat zaznam'>");
 	        out.println("</form>");
-			out.println("<br>");
+	        out.println("<br>");
 	        out.println("<a href='Zakaznik'><button>Zobrazit tabulku zakaznikov</button></a>\t<a href='Tovar'><button>Zobrazit tabulku tovarov</button></a>");
-	        
-	       // out.println("</body>");
 
-	        
 	        stmt.close();
-				
-		} catch (Exception e) {
-			System.out.println("V doGet spojovacia tabulka: " + e);
-			}
+
+	    } catch (Exception e) {
+	        System.out.println("V doGet spojovacia tabulka: " + e);
+	    }
 	}
+
 	
 	private void ZobrazFormularPrePridanie(PrintWriter out) {
 	    out.println("<br>");
@@ -245,21 +264,33 @@ public class Objednavky extends HttpServlet {
 	    out.println("</table>");
 
 	    out.println("<input type='hidden' name='operacia' value='Pridat'>");
-	    out.println("<button type='submit'>Pridaj zaznam</button>");
+	    out.println("<button type='submit'>Uloz novy zaznam</button>");
 	    out.println("</form>");
 	}
 	
 	private void PridatPolozku(PrintWriter out, String datum, String idZakaznika, String idTovar) {
 	    try {
 	        Statement stmt = con.createStatement();
-	        String sql = "INSERT INTO " + tO + "(" + tOdatum + ", " + tOidZ + ", " + tOidT + ") VALUES(";
-	        sql += "'" + datum + "', ";
-	        sql += "'" + idZakaznika + "', ";
-	        sql += "'" + idTovar + "') ";
+	        StringBuilder sqlBuilder = new StringBuilder("INSERT INTO " + tO + "(");
 
+	        sqlBuilder.append(tOidZ).append(", ").append(tOidT);
+	        
+	        if (!datum.isEmpty()) {
+	            sqlBuilder.append(", ").append(tOdatum);
+	        }
+
+	        sqlBuilder.append(") VALUES ('").append(idZakaznika).append("', '").append(idTovar);
+
+	        if (!datum.isEmpty()) {
+	            sqlBuilder.append("', '").append(datum);
+	        }
+
+	        sqlBuilder.append("')");
+
+	        String sql = sqlBuilder.toString();
 	        int pocet = stmt.executeUpdate(sql);
-	        System.out.println("Pridat polozku SQL: " + sql);
-	        System.out.println("Bolo pridanych " + pocet + " zaznamov.<br/>");
+	        //System.out.println("Pridat polozku SQL: " + sql);
+	       // System.out.println("Bolo pridanych " + pocet + " zaznamov.<br/>");
 	    } catch (Exception e) {
 	        System.out.println("Objednavky pridaj polozku nejde: " + e);
 	    }
@@ -300,7 +331,6 @@ public class Objednavky extends HttpServlet {
 	            out.println("<td><label for='" + tOidZ + "'>" + tOidZ + ":</label></td>");
 	            out.println("<td><select name='" + tOidZ + "'>");
 
-	            // Populate the dropdown with Zakaznici data
 	            try {
 	                Statement zakazniciStmt = con.createStatement();
 	                String zakazniciSql = "SELECT * FROM " + tZ;
@@ -330,7 +360,6 @@ public class Objednavky extends HttpServlet {
 	            out.println("<td><label for='" + tOidT + "'>" + tOidT + ":</label></td>");
 	            out.println("<td><select name='" + tOidT + "'>");
 
-	            // Populate the dropdown with Tovar data
 	            try {
 	                Statement tovarStmt = con.createStatement();
 	                String tovarSql = "SELECT * FROM " + tT;

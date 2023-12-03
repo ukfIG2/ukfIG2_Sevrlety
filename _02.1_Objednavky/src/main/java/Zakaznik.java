@@ -73,10 +73,8 @@ public class Zakaznik extends HttpServlet {
 			break;
 		case "Pridat":
 			PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
-			System.out.println("Operacia pridat prebehla");
 			break;
 		case "Upravit":
-			System.out.println("case upravit");
 			UpravitPolozku(out, request.getParameter(tZid));
 			break;
 		case "UlozitUpravu":
@@ -147,6 +145,9 @@ public class Zakaznik extends HttpServlet {
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
 	        out.println("<input type='submit' value='Pridat zaznam'>");
 	        out.println("</form>");
+	        
+	        out.println("<br>");
+	        out.println("<a href='Objednavky'><button>Zobrazit tabulku objednavky</button></a>\t<a href='Tovar'><button>Zobrazit tabulku tovarov</button></a>");
 	        	        
 	        stmt.close();
 	        //out.flush(); //?? treba?
@@ -183,7 +184,7 @@ public class Zakaznik extends HttpServlet {
 		out.println("</table>");
 		
 		out.println("<input type='hidden' name='operacia' value='Pridat'>");
-		out.println("<button type='submit'>Pridaj zaznam</button>");
+		out.println("<button type='submit'>Uloz novy zaznam</button>");
 		out.println("</form>");
 	}
 				
