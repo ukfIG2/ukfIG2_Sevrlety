@@ -76,15 +76,15 @@ public class Zakaznik extends HttpServlet {
 			System.out.println("Pripojenie neni");
 			return;
 		}
-		//else {System.out.println("Pripojenie je");}
+		else {System.out.println("Pripojenie je");}
 		
 		String operacia = request.getParameter("operacia");
 		if(operacia ==null) {													//odkomentuj
-			operacia=""; out.print("operacia: neni " + operacia);
-			return;
+			operacia=""; 
+			//return;
 		}
 		else {System.out.println("Operacia "+operacia);}
-		
+
 		switch(operacia) {
 		case "Vymazat":
 			VymazPolozku(out, request.getParameter(tZid));
@@ -107,7 +107,7 @@ public class Zakaznik extends HttpServlet {
             UlozitUpravu(out, id, meno, priezvisko, ico, adresa);
             break;
 		}
-		
+
 		VypisDatabazu(out);
 		if(operacia.equals("addForm")) {ZobrazFormularPrePridanie(out);}
 		
