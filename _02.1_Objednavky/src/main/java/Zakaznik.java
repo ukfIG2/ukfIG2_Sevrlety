@@ -93,9 +93,19 @@ public class Zakaznik extends HttpServlet {
 			PridatPolozku(out, request.getParameter(tZmeno), request.getParameter(tZpriezvisko), request.getParameter(tZico), request.getParameter(tZadresa));
 			System.out.println("Operacia pridat prebehla");
 			break;
-		/*case "Upravit":
-			UpravitPolozku();
-			break;*/
+		case "Upravit":
+			System.out.println("case upravit");
+			UpravitPolozku(out, request.getParameter(tZid));
+			break;
+		case "UlozitUpravu":
+            String id = request.getParameter(tZid);
+            String meno = request.getParameter(tZmeno);
+            String priezvisko = request.getParameter(tZpriezvisko);
+            String ico = request.getParameter(tZico);
+            String adresa = request.getParameter(tZadresa);
+
+            UlozitUpravu(out, id, meno, priezvisko, ico, adresa);
+            break;
 		}
 		
 		VypisDatabazu(out);
@@ -138,8 +148,14 @@ public class Zakaznik extends HttpServlet {
 	            out.println("<td>" + rs.getString(tZico) + "</td>");
 	            out.println("<td>" + rs.getString(tZadresa) + "</td>");
 	            
-	            out.println("<input type=hidden name='operacia' value='mazanie'>");
+	            out.println("<input type=hidden name='operacia' value='Vymazat'>");
 	            out.println("<td><input type=submit value='Vymaz zaznam'></td>");
+	            out.println("</form>");
+	            
+	            out.println("<form action='Zakaznik' method='post'>");
+	 	        out.println("<input type=hidden name ="+ tZid +" value='"+rs.getString(tZid)+"'>");
+	            out.println("<input type=hidden name='operacia' value='Upravit'>");
+	            out.println("<td><input type=submit value='Uprav zaznam'></td>");
 	            out.println("</form>");
 	            out.println("</tr>");
 	            
@@ -163,6 +179,7 @@ public class Zakaznik extends HttpServlet {
 	}//Vypis databazu
 	
 	private void ZobrazFormularPrePridanie(PrintWriter out) {
+		
 		out.println("<form action='Zakaznik' method='post'>");
 		out.println("<table>");
 		
@@ -212,7 +229,64 @@ public class Zakaznik extends HttpServlet {
 	}
 	
 	private void VymazPolozku(PrintWriter out, String id) {
-		
+		    try {
+		        Statement stmt = con.createStatement();
+		        String sql = "DELETE FROM Zakaznici WHERE " + tZid + " = " + id;
+		        int pocet = stmt.executeUpdate(sql);
+		        //out.print("Bolo odstranenych " + pocet + " zaznamov.<br/>");
+		    } catch (Exception e) {
+		        System.out.println("Zakaznik vymaz polocku: " + e);
+		    }
+		}
+
+	private void UpravitPolozku(PrintWriter out, String id) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM " + tZ + " WHERE " + tZid + " = " + id;
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        out.println("<h2>Upravit zaznam</h2>");
+	        out.println("<h3>Co chces zmen, ostatne nehaj napokoj</h3>");
+	        out.println("<form action='Zakaznik' method='post'>");
+
+	        while (rs.next()) {
+	            out.println("<input type='hidden' name='" + tZid + "' value='" + rs.getString(tZid) + "'>");
+
+	            out.println("<label for='" + tZmeno + "'>" + tZmeno + ":</label>");
+	            out.println("<input type='text' name='" + tZmeno + "' value='" + rs.getString(tZmeno) + "'><br>");
+
+	            out.println("<label for='" + tZpriezvisko + "'>" + tZpriezvisko + ":</label>");
+	            out.println("<input type='text' name='" + tZpriezvisko + "' value='" + rs.getString(tZpriezvisko) + "'><br>");
+
+	            out.println("<label for='" + tZico + "'>" + tZico + ":</label>");
+	            out.println("<input type='text' name='" + tZico + "' value='" + rs.getString(tZico) + "'><br>");
+
+	            out.println("<label for='" + tZadresa + "'>" + tZadresa + ":</label>");
+	            out.println("<input type='text' name='" + tZadresa + "' value='" + rs.getString(tZadresa) + "'><br>");
+	        }
+
+	        out.println("<input type='hidden' name='operacia' value='UlozitUpravu'>");
+	        out.println("<input type='submit' value='Ulozit upravu'>");
+	        out.println("</form>");
+	    } catch (Exception e) {
+	        System.out.println("Zakaznik uprav polozku: " + e);
+	    }
+	}
+
+	private void UlozitUpravu(PrintWriter out, String id, String meno, String priezvisko, String ico, String adresa) {
+	    try {
+	        Statement stmt = con.createStatement();
+	        String sql = "UPDATE " + tZ + " SET " +
+	                     tZmeno + "='" + meno + "', " +
+	                     tZpriezvisko + "='" + priezvisko + "', " +
+	                     tZico + "='" + ico + "', " +
+	                     tZadresa + "='" + adresa + "' " +
+	                     "WHERE " + tZid + "=" + id;
+	        int pocet = stmt.executeUpdate(sql);
+	        System.out.println("Uprava polozky uspesna, zmenenych riadkov: " + pocet);
+	    } catch (Exception e) {
+	        System.out.println("Zakaznik uprav polozku: " + e);
+	    }
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
