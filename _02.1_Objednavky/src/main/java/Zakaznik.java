@@ -14,23 +14,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Servlet implementation class SELECT_Zakaznici
- */
 public class Zakaznik extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	public final static String databaza = "_02_Objednavky";
 	public final static String URL = "jdbc:mysql://localhost/" + databaza;
 	public final static String username = "root";
 	public final static String password = "";
-	
-	public final static String tO = "Objednavky";
-	public final static String tOid = "idObjednavky";
-	public final static String tOdatum = "Datum_objednavky";
-	public final static String tOidZ = "id_Zakaznikov";
-	public final static String tOidT = "idTovar";
-	
-	
+		
 	public final static String tZ = "Zakaznici";
 	public final static String tZid = "id_Zakaznikov";
 	public final static String tZmeno = "Meno_zakaznika";
@@ -38,20 +28,11 @@ public class Zakaznik extends HttpServlet {
 	public final static String tZico = "ICO";
 	public final static String tZadresa = "Adresa";
 	
-	public final static String tT = "Tovar";
-	public final static String tTid = "idTovar";
-	public final static String tTnazov = "Nazov_tovaru";
-	public final static String tTcena = "Cena_tovaru";
-	public final static String tThodnotenie = "Hodnotenie";
-	
 	private Connection con;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
+
     public Zakaznik() {
         super();
-        // TODO Auto-generated constructor stub
     }
     	
     public void init(ServletConfig config) throws ServletException {
@@ -79,8 +60,8 @@ public class Zakaznik extends HttpServlet {
 		else {System.out.println("Pripojenie je");}
 		
 		String operacia = request.getParameter("operacia");
-		if(operacia ==null) {													//odkomentuj
-			operacia=""; 
+		if(operacia ==null) {													//asi neni najstasnejsie riesenie
+			operacia=""; System.out.println("Prazdna operacia");
 			//return;
 		}
 		else {System.out.println("Operacia "+operacia);}
@@ -110,9 +91,7 @@ public class Zakaznik extends HttpServlet {
 
 		VypisDatabazu(out);
 		if(operacia.equals("addForm")) {ZobrazFormularPrePridanie(out);}
-		
-		
-		
+			
 		out.close();
 	}
 	
@@ -167,14 +146,12 @@ public class Zakaznik extends HttpServlet {
 	        out.println("<input type='hidden' name='operacia' value='addForm'>");
 	        out.println("<input type='submit' value='pridat'>");
 	        out.println("</form>");
-	        
-	        //out.println("<a href='Hlavna_obrazovka'><button>Zobrazit tabulku OBJEDNAVKY</button></a>");
-	        
+	        	        
 	        stmt.close();
-	        //out.flush(); //??
+	        //out.flush(); //?? treba?
 				
 		} catch (Exception e) {
-			System.out.println("V select_zakaznici: " + e);
+			System.out.println("V Zakaznici: Vypis databazu " + e);
 			}
 	}//Vypis databazu
 	
@@ -203,6 +180,7 @@ public class Zakaznik extends HttpServlet {
 		out.println("<td><input type='text' name="+tZadresa+"></td>");
 		out.println("</tr>");
 		out.println("</table>");
+		
 		out.println("<input type='hidden' name='operacia' value='Pridat'>");
 		out.println("<button type='submit'>Pridaj zaznam</button>");
 		out.println("</form>");
@@ -282,7 +260,6 @@ public class Zakaznik extends HttpServlet {
 	        System.out.println("Zakaznik uprav polozku: " + e);
 	    }
 	}
-
 
 	private void UlozitUpravu(PrintWriter out, String id, String meno, String priezvisko, String ico, String adresa) {
 	    try {

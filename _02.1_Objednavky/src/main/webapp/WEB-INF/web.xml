@@ -29,4 +29,14 @@
     <servlet-name>Zakaznik</servlet-name>
     <url-pattern>/Zakaznik</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>Tovar</display-name>
+    <servlet-name>Tovar</servlet-name>
+    <servlet-class>Tovar</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Tovar</servlet-name>
+    <url-pattern>/Tovar</url-pattern>
+  </servlet-mapping>
 </web-app>
