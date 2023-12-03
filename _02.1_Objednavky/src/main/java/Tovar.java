@@ -169,12 +169,12 @@ PrintWriter out = response.getWriter();
 		
         out.println("<tr>");
         out.println("<td>"+tTcena+" v eurach</td>");
-		out.println("<td><input type='text' name="+tTcena+"></td>");
+		out.println("<td><input type='number' name="+tTcena+"></td>");
 		out.println("</tr>");
 		
         out.println("<tr>");
         out.println("<td>"+tThodnotenie+" od 0 do 5</td>");
-		out.println("<td><input type='text' name="+tThodnotenie+"></td>");
+		out.println("<td><input type='number' name="+tThodnotenie+"></td>");
 		out.println("</tr>");
 		out.println("</table>");
 		
@@ -239,12 +239,12 @@ PrintWriter out = response.getWriter();
 
 	            out.println("<tr>");
 	            out.println("<td><label for='" + tTcena + "'>" + tTcena + ":</label></td>");
-	            out.println("<td><input type='text' name='" + tTcena + "' value='" + rs.getString(tTcena) + "'></td>");
+	            out.println("<td><input type='number' name='" + tTcena + "' value='" + rs.getString(tTcena) + "'></td>");
 	            out.println("</tr>");
 
 	            out.println("<tr>");
-	            out.println("<td><label for='" + tThodnotenie + "'>" + tThodnotenie + ":</label></td>");
-	            out.println("<td><input type='text' name='" + tThodnotenie + "' value='" + rs.getString(tThodnotenie) + "'></td>");
+	            out.println("<td><label for='" + tThodnotenie + "'>" + tThodnotenie + " od 0 do 5:</label></td>");
+	            out.println("<td><input type='number' name='" + tThodnotenie + "' value='" + rs.getString(tThodnotenie) + "'></td>");
 	            out.println("</tr>");
 
 	            out.println("<input type='hidden' name='" + tTid + "' value='" + rs.getString(tTid) + "'>");
