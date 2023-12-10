@@ -1,5 +1,3 @@
-
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,29 +15,22 @@ import java.sql.Statement;
 
 import com.mysql.cj.Session;
 
-
-
-/**
- * Servlet implementation class Servlet
- */
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private Connection con;
 	public final static String databaza = "ais";
 	public final static String URL = "jdbc:mysql://localhost/" + databaza;
 	public final static String username = "root";
 	public final static String password = "";
+	private Connection con;
+	private String my_error="";
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public Servlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void init(ServletConfig config) throws ServletException {
 		try {
+			super.init();//Treba toto?
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			con = DriverManager.getConnection(URL, username, password);
 		} catch (Exception e) {
@@ -53,19 +44,19 @@ public class Servlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html;charset=UTD-8");
+		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();
 		try {
-			if(con==null) {out.println("chyba spojenia"); return;}
-			String operacia = request.getParameter("operacia");
-			if(operacia==null) {zobrazNeopravnenyPristup(out); return;}
-			if(operacia.equals("login")) {overUsera(out); return;}
-			int user_id = getUserID(request);
-			if(user_id==0) {zobrazNeopravnenyPristup(out); return;}
-			vypisData(out, request);
-			if(operacia.equals("potvrdit")) {zapisPotvrdenia(out, request);}
-			if(operacia.equals("logout")) {urobLogout(out, request); return;}
-			vypisData(out, request);
+			if (con == null) { out.println(my_error);  return; }
+            String operacia = request.getParameter("operacia");
+            if (operacia == null) { zobrazNeopravnenyPristup(out); return; }
+            if (operacia.equals("login")) { overUsera(out, request); }
+            int user_id = getUserID(request);
+            if (user_id == 0) { zobrazNeopravnenyPristup(out); return; }
+            vypisHlavicka(out, request);
+            if (operacia.equals("potvrdit")) {zapisPotvrdenia(out, request); }
+            if (operacia.equals("logout")) { urobLogout(out, request); return; }
+            vypisData(out, request);
 		} catch (Exception e) {
 			System.out.println("Servlet doget " + e);
 		}
@@ -75,7 +66,6 @@ public class Servlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 	
@@ -92,11 +82,92 @@ public class Servlet extends HttpServlet {
 			String sql = "SELECT MAX(id) AS iid, COUNT(id) AS pocet FROM users WHERE email='"+meno+"'AND passwd = '"+heslo+"'";
 			ResultSet rs = stmt.executeQuery(sql);
 			rs.next();
+						
 			HttpSession session = request.getSession();
-			if(rs.getInt("pocet"))
+			if(rs.getInt("pocet")==1) {//existuje jeden, takze OK
+				sql = "SELECT id, meno, priezvisko FROM users WHERE email = '"+meno+"'";
+				rs = stmt.executeQuery(sql);
+				rs.next();
+				session.setAttribute("ID", rs.getInt("id"));
+				session.setAttribute("meno", rs.getString("meno"));
+				session.setAttribute("priezvisko", rs.getString("priezvisko"));
+			} else {
+				out.println("Autorizacia sa nepodarila. Skontroluj prihlasovacie udaje.");
+				session.invalidate(); 		//zmazem sedenie
+			}
+			rs.close();
+			stmt.close();
 		} catch (Exception e) {
+			e.printStackTrace();  // Add this line to print the full stack trace
 			System.out.println("OverUsera " + e);
 		}
 	}
 
+	protected int getUserID(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		Integer id = (Integer) (session.getAttribute("ID"));
+		if(id==null) id=0;//radsej -1
+		return id;
+	}
+	
+	protected void vypisHlavicka(PrintWriter out, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		out.println("<h2>"+session.getAttribute("meno")+" "+session.getAttribute("priezvisko")+"</h2>");
+		out.println("<hr>");
+	}
+	
+	protected void vypisData(PrintWriter out, HttpServletRequest request) {
+		try {
+			Statement stmt = con.createStatement();
+			String sql = "Select znamky.id, znamky.datum, predmet, znamka, videne From znamky INNER JOIN predmety ON (znamky.predmet_id = predmety.id) WHERE user_id = "+getUserID(request);
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()) {//samostatny formular, pre kazdy riadok/znamku
+				out.println("<form method='post' action='Servlet'>");
+				out.println(rs.getString("datum"));
+				out.println("<b>"+rs.getString("predmet")+"</b>");
+				out.println(rs.getString("znamka"));
+				if(rs.getString("videne") == null) {//tlacidlo, ak to nevidel aj s hidden
+					out.print("<input type='hidden' name='operacia' value='potvrdit'>");
+					out.print("<input type='hidden' name='id' value='"+rs.getString("id")+"'>");
+					out.print("<input type='submit' value='potvrd videnie'>");
+				}else {	//vypis datumu, ak znamku potvrdil
+					out.println("videl: "+rs.getString("videne"));
+				}
+				out.println("</form>");//ukoncenie formu
+			}
+			rs.close();
+			stmt.close();
+			out.println("<br /><br />");
+			out.println("<form method='post' action='Servlet'>");
+			out.println("<input type='hidden' name='operacia' value='logout'>");
+			out.println("<input type='submit' value='logout'>");
+			out.println("</form>");
+		} catch(Exception e) {System.out.println("vypisData: "+e);}
+	}
+	
+	//zapis studenta za videl znamku
+	protected void zapisPotvrdenia(PrintWriter out, HttpServletRequest request) {
+		try {
+			 Statement stmt = con.createStatement();
+			 String sql = "UPDATE znamky SET videne = NOW() WHERE id="+request.getParameter("id");
+			 stmt.executeUpdate(sql);
+			 stmt.close();
+		} catch (Exception e){
+			System.err.println("ZapisPotvrdenia "+e);
+		}
+	}
+	
+	//odhlasenie
+	protected void urobLogout(PrintWriter out, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		session.invalidate();
+		out.println("bye bye<br>");
+		out.println("<a href='index.html'>Domov</a>");
+	}
+	
+	
+	
+	
+	
+	
 }
