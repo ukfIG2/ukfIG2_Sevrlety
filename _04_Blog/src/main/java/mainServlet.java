@@ -12,10 +12,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,20 +63,41 @@ public class mainServlet extends HttpServlet {
             System.out.println("Operacia je: " + operacia);
             
             if (operacia == null) { zobrazNeopravnenyPristup(out); return; }
-            else if (operacia.equals("register")) {registerUser(out, request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), request.getParameter("Nickname"), response, request);}
-           
+            if (operacia.equals("register")) {registerUser(out, request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), request.getParameter("Nickname"), response, request);}
             if (operacia.equals("login")) { overUsera(out, request); }
             if (operacia.equals("PosT")) {postSomething(out, request);}
             if (operacia.equals("refreshPage"));
+            if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
+            
+            if ("modifyBans".equals(operacia)) {
+                int bannerId = getUserID(request);
+
+                Enumeration<String> parameterNames = request.getParameterNames();
+                while (parameterNames.hasMoreElements()) {
+                    String paramName = parameterNames.nextElement();
+                    if (paramName.startsWith("banStatus_")) {
+                        int userId = Integer.parseInt(paramName.substring("banStatus_".length()));
+                        String banStatus = request.getParameter(paramName);
+                        updateBanStatus(bannerId, userId, "true".equals(banStatus));
+                    }
+                }
+            }
+            
             int user_id = getUserID(request);
             if (user_id == 0) { zobrazNeopravnenyPristup(out); return; }
-            head(out);
-            vypisHlavicka(out, request);
             
-            if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
-            vypisPosty(out, request);
-            displayPostForm(out);
+            head(out);
+            
+            	vypisHlavicka(out, request);
+                        
+            	vypisPosty(out, request);
+            
+            	displayPostForm(out);
+            	
+            	showBanTable(out, request);
+            
             legs(out);
+            
             out.close();
 		} catch (Exception e) {
 			System.err.println("Servlet doget " + e);
@@ -243,23 +266,37 @@ public class mainServlet extends HttpServlet {
 	}
 	
 	protected void vypisPosty(PrintWriter out, HttpServletRequest request) {
-		try {
-			Statement stmt = con.createStatement();
-			String sql = "SELECT Users.Nickname AS Nickname, Posts.Text AS Text, Posts.Datetime as DateTime FROM Posts INNER JOIN Users ON Users.idUsers = Posts.idUsers";
-			ResultSet rs = stmt.executeQuery(sql);
-			out.println("<div class='blog-container'>");
-			while(rs.next()) {
-				out.println("<div class='blog-post'>");
-					out.println("<p> " + rs.getString("DateTime") + " " + rs.getString("Nickname") + " " + rs.getString("Text") + "</p>");
-					out.println("</div>");
-			}
-			out.println("</div>");
-			rs.close();
-			stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	    try {
+	        Statement stmt = con.createStatement();
+	        int userId = getUserID(request);
+
+	        String sql = "SELECT Users.Nickname AS Nickname, Posts.Text AS Text, Posts.Datetime as DateTime " +
+	                     "FROM Posts " +
+	                     "INNER JOIN Users ON Users.idUsers = Posts.idUsers " +
+	                     "WHERE Posts.idUsers NOT IN " +
+	                     "(SELECT idBanned FROM Bans WHERE idBanner = ?) " +
+	                     "ORDER BY Posts.Datetime ASC";
+
+	        PreparedStatement pstmt = con.prepareStatement(sql);
+	        pstmt.setInt(1, userId);
+
+	        ResultSet rs = pstmt.executeQuery();
+
+	        out.println("<div class='blog-container'>");
+	        while (rs.next()) {
+	            out.println("<div class='blog-post'>");
+	            out.println("<p> " + rs.getString("DateTime") + " " + rs.getString("Nickname") + " " + rs.getString("Text") + "</p>");
+	            out.println("</div>");
+	        }
+	        out.println("</div>");
+
+	        rs.close();
+	        stmt.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
+
 	
 	protected void head(PrintWriter out) {
 		out.println("<!DOCTYPE html>");
@@ -337,4 +374,113 @@ public class mainServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
+	
+	protected void showBanTable(PrintWriter out, HttpServletRequest request) {
+	    try {
+	        int bannerId = getUserID(request);
+
+	        // Ensure that the bannerId is not 0 (not logged in)
+	        if (bannerId != 0) {
+	            Statement stmt = con.createStatement();
+	            String sql = "SELECT Users.idUsers, Users.Nickname, Bans.idBan " +
+	                         "FROM Users " +
+	                         "LEFT JOIN Bans ON Users.idUsers = Bans.idBanned AND Bans.idBanner = ? " +
+	                         "WHERE Users.idUsers != ?";
+
+	            PreparedStatement pstmt = con.prepareStatement(sql);
+	            pstmt.setInt(1, bannerId);
+	            pstmt.setInt(2, bannerId);
+
+	            ResultSet rs = pstmt.executeQuery();
+
+	            out.println("<div class='ban-table'>");
+	            out.println("<form method='post' action='mainServlet'>");
+	            out.println("<input type='hidden' name='operacia' value='modifyBans'>");
+
+	            out.println("<table border='1'>");
+	            out.println("<tr><th>User ID</th><th>Nickname</th><th>Banned</th></tr>");
+
+	            while (rs.next()) {
+	                int userId = rs.getInt("idUsers");
+	                String nickname = rs.getString("Nickname");
+	                int banId = rs.getInt("idBan");
+
+	                out.println("<tr>");
+	                out.println("<td>" + userId + "</td>");
+	                out.println("<td>" + nickname + "</td>");
+	                out.println("<td><input type='radio' name='banStatus_" + userId + "' " +
+	                             (banId > 0 ? "checked" : "") + " value='true'>Banned " +
+	                             "<input type='radio' name='banStatus_" + userId + "' " +
+	                             (banId == 0 ? "checked" : "") + " value='false'>Not Banned</td>");
+	                out.println("</tr>");
+	            }
+
+	            out.println("</table>");
+	            out.println("<input type='submit' value='Submit Changes'>");
+	            out.println("</form>");
+	            out.println("</div>");
+
+	            rs.close();
+	            stmt.close();
+	        } else {
+	            out.println("User not logged in");
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+
+
+
+
+
+
+	private void updateBanStatus(int bannerId, int userId, boolean banned) throws SQLException {
+	    String selectSql = "SELECT idBan FROM Bans WHERE idBanner = ? AND idBanned = ?";
+	    String insertSql = "INSERT INTO Bans (idBanner, idBanned, Date) VALUES (?, ?, NOW())";
+	    String updateSql = "UPDATE Bans SET Date = NOW() WHERE idBanner = ? AND idBanned = ?";
+	    String deleteSql = "DELETE FROM Bans WHERE idBanner = ? AND idBanned = ?";
+
+	    try (PreparedStatement selectStmt = con.prepareStatement(selectSql)) {
+	        selectStmt.setInt(1, bannerId);
+	        selectStmt.setInt(2, userId);
+
+	        ResultSet rs = selectStmt.executeQuery();
+
+	        if (rs.next()) {
+	            // Ban record already exists
+	            int banId = rs.getInt("idBan");
+	            if (banned) {
+	                // Update ban record
+	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                    updateStmt.setInt(1, bannerId);
+	                    updateStmt.setInt(2, userId);
+	                    updateStmt.executeUpdate();
+	                }
+	            } else {
+	                // Delete existing ban record
+	                try (PreparedStatement deleteStmt = con.prepareStatement(deleteSql)) {
+	                    deleteStmt.setInt(1, bannerId);
+	                    deleteStmt.setInt(2, userId);
+	                    deleteStmt.executeUpdate();
+	                }
+	            }
+	        } else {
+	            // Ban record does not exist, insert a new one if banned
+	            if (banned) {
+	                try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
+	                    insertStmt.setInt(1, bannerId);
+	                    insertStmt.setInt(2, userId);
+	                    insertStmt.executeUpdate();
+	                }
+	            }
+	        }
+	    }
+	}
+
+	
+	
+	
+	
 }

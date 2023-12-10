@@ -7,8 +7,8 @@ INDEX VERSION 1.4+/home/ivang/Vsetko_s_eclipsom/ukfIG2_Sevrlety/.metadata/.plugi
 544283765.index
 2363591780.index
 3285472207.index
-0.index
 2567762503.index
 2162179046.index
+4226752804.index
 4262636856.index
 803733178.index
