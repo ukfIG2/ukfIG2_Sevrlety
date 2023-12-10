@@ -258,6 +258,7 @@ public class mainServlet extends HttpServlet {
 	protected void vypisHlavicka(PrintWriter out, HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		out.println("<h2>"+session.getAttribute("meno") + "</h2>");
+		
 		out.println("<form method='post' action='mainServlet'>");
 		out.println("<input type='hidden' name='operacia' value='logout'>");
 		out.println("<input type='submit' value='logout'>");
@@ -297,7 +298,6 @@ public class mainServlet extends HttpServlet {
 	    }
 	}
 
-	
 	protected void head(PrintWriter out) {
 		out.println("<!DOCTYPE html>");
         out.println("<html lang='en'>");
@@ -325,23 +325,20 @@ public class mainServlet extends HttpServlet {
 		    out.println("<input type='hidden' name='operacia' value='PosT'>");
 		    out.println("<textarea id='TexT' name='TexT' rows='4' cols='50'></textarea><br>");
 		    out.println("<input type='submit' value='Post'>");
-
 	    out.println("</form>");
 	} 
 	
 	private void postSomething(PrintWriter out, HttpServletRequest request) {
 		try {
 			HttpSession session = request.getSession();
-	        int userId = (Integer) session.getAttribute("ID"); // Get user ID from the session
+	        int userId = (Integer) session.getAttribute("ID"); 
 			
-	        if (userId != 0) { // Check if the user is logged in
-	            String text = request.getParameter("TexT"); // Get the text from the form
+	        if (userId != 0) { 
+	            String text = request.getParameter("TexT"); 
 
-	            // Check if the text is not empty
 	            if (text != null && !text.isEmpty()) {
 	                Statement stmt = con.createStatement();
 
-	                // SQL query to insert a new post
 	                String sql = "INSERT INTO Posts (idUsers, Text, Datetime) VALUES (" + userId + ", '" + text + "', NOW())";
 
 	                int rowsAffected = stmt.executeUpdate(sql);
@@ -379,7 +376,6 @@ public class mainServlet extends HttpServlet {
 	    try {
 	        int bannerId = getUserID(request);
 
-	        // Ensure that the bannerId is not 0 (not logged in)
 	        if (bannerId != 0) {
 	            Statement stmt = con.createStatement();
 	            String sql = "SELECT Users.idUsers, Users.Nickname, Bans.idBan " +
@@ -430,12 +426,6 @@ public class mainServlet extends HttpServlet {
 	    }
 	}
 
-
-
-
-
-
-
 	private void updateBanStatus(int bannerId, int userId, boolean banned) throws SQLException {
 	    String selectSql = "SELECT idBan FROM Bans WHERE idBanner = ? AND idBanned = ?";
 	    String insertSql = "INSERT INTO Bans (idBanner, idBanned, Date) VALUES (?, ?, NOW())";
@@ -449,17 +439,14 @@ public class mainServlet extends HttpServlet {
 	        ResultSet rs = selectStmt.executeQuery();
 
 	        if (rs.next()) {
-	            // Ban record already exists
 	            int banId = rs.getInt("idBan");
 	            if (banned) {
-	                // Update ban record
 	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
 	                    updateStmt.setInt(1, bannerId);
 	                    updateStmt.setInt(2, userId);
 	                    updateStmt.executeUpdate();
 	                }
 	            } else {
-	                // Delete existing ban record
 	                try (PreparedStatement deleteStmt = con.prepareStatement(deleteSql)) {
 	                    deleteStmt.setInt(1, bannerId);
 	                    deleteStmt.setInt(2, userId);
@@ -467,7 +454,6 @@ public class mainServlet extends HttpServlet {
 	                }
 	            }
 	        } else {
-	            // Ban record does not exist, insert a new one if banned
 	            if (banned) {
 	                try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
 	                    insertStmt.setInt(1, bannerId);

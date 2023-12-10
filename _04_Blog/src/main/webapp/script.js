@@ -103,7 +103,7 @@ function handleUserActivity() {
 
 // Add event listeners for user activity
 document.addEventListener('scroll', handleUserActivity);
-document.addEventListener('mousemove', handleUserActivity);
+//document.addEventListener('mousemove', handleUserActivity);
 document.addEventListener('keypress', handleUserActivity);
 document.addEventListener('input', handleUserActivity);
 

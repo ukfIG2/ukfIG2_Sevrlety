@@ -10,14 +10,14 @@ body {
 
 h2 {
     color: #333;
-    margin-left: 10%; /* Add the margin-left property */
+    margin-left: 10%;
 }
 
 .blog-post {
     background-color: #f4f4f4;
     border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
     margin-left: 10%;
 }
 
@@ -32,25 +32,32 @@ h2 {
 }
 
 hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 30px;
+    margin-bottom: 30px;
     border: 0;
     border-top: 1px solid #ddd;
 }
 
-/* Additional styles from the previous CSS */
 .formular {
     background: #f4f4f4;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    align-items: flex-end;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+    margin-bottom: 20px;
 }
 
-.formular input {
+.formular label {
+    display: block;
     margin-bottom: 10px;
-    padding: 8px;
-    width: 100%;
+}
+
+.formular textarea {
+    margin-bottom: 15px;
+    padding: 10px;
+    width: calc(100% - 20px);
     box-sizing: border-box;
 }
 
@@ -71,7 +78,28 @@ footer {
     bottom: 0;
     width: 100%;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
     background-color: #333;
     color: white;
+}
+
+.ban-table {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.ban-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.ban-table th, .ban-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.ban-table input[type="radio"] {
+    margin: 0;
 }
