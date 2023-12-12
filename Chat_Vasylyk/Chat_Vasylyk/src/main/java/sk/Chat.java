@@ -177,7 +177,7 @@ public class Chat extends HttpServlet {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
             String query = "SELECT * FROM chat_messages WHERE username NOT IN " +
                            "(SELECT banned_user_id FROM banned_users WHERE banning_user_id = " +
-                           "(SELECT id FROM users WHERE username = ?))";
+                           "(SELECT id FROM users WHERE username = ?));";// ORDER BY chat_messages.message_date";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, username);
 
