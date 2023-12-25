@@ -4,6 +4,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
@@ -11,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
@@ -27,6 +30,7 @@ public class Main_servlet extends HttpServlet {
 	private Connection con;
 	
 	private String pozicia = "Neprihláseny zákaznik";
+	private String meno = "";
        
     public Main_servlet() {
         super();
@@ -69,25 +73,12 @@ public class Main_servlet extends HttpServlet {
             
            /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
-           // if (operacia.equals("login")) { overUsera(out, request); }
+            if (operacia.equals("login")) { overUsera(out, request, response); }
             /*if (operacia.equals("PosT")) {postSomething(out, request);}
-            if (operacia.equals("refreshPage"));
+            if (operacia.equals("refreshPage"));*/
             if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
-            
-            if ("modifyBans".equals(operacia)) {
-                int bannerId = getUserID(request);
-
-                Enumeration<String> parameterNames = request.getParameterNames();
-                while (parameterNames.hasMoreElements()) {
-                    String paramName = parameterNames.nextElement();
-                    if (paramName.startsWith("banStatus_")) {
-                        int userId = Integer.parseInt(paramName.substring("banStatus_".length()));
-                        String banStatus = request.getParameter(paramName);
-                        updateBanStatus(bannerId, userId, "true".equals(banStatus));
-                    }
-                }
-            }
-            
+            /*
+             
             int user_id = getUserID(request);
             if (user_id == 0) { zobrazNeopravnenyPristup(out); return; }
             
@@ -135,14 +126,23 @@ public class Main_servlet extends HttpServlet {
 	protected void header(PrintWriter out) {
 		out.println("<header>");
 		out.println("	<div class='pozdrav'>");
-		out.println("		<h1>Ahoj " + pozicia + "</h1>");
+		out.println("		<h1>Ahoj " + pozicia + " " + meno + "</h1>");
 		out.println("	</div>");
 
+		if(pozicia.equals("Neprihláseny zákaznik")) {
 	    out.println("    <div class='button-container'>");
 	    out.println("        <form action='login.html'>");
 	    out.println("            <button type='submit'>Prihlás sa</button>");
 	    out.println("        </form>");
 	    out.println("    </div>");
+		} else if(pozicia.equals("Prihlaseny používateľ")) {
+		    out.println("    <div class='button-container'>");
+		    out.println("		<form method='post' action='Main_servlet'>");
+			out.println("			<input type='hidden' name='operacia' value='logout'>");
+			out.println("			<input type='submit' value='logout'>");
+		    out.println("        </form>");
+		    out.println("    </div>");
+		}
 	    
 	    out.println("    <div class='button-container'>");
 	    out.println("        <form action='register.html'>");
@@ -158,7 +158,7 @@ public class Main_servlet extends HttpServlet {
 	        if (isValidPassword(pwd) && pwd.equals(confirmPwd)) {
 	            pwd = hashPassword(pwd);
 
-	            String sql = "INSERT INTO Users (`Meno`, `Priezvisko`, `E-mail`, `Adresa`, `Password`) VALUES (?, ?, ?, ?, ?)";
+	            String sql = "INSERT INTO Users (`Meno`, `Priezvisko`, E_mail, `Adresa`, `Password`) VALUES (?, ?, ?, ?, ?)";
 	            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
 	                pstmt.setString(1, name);
 	                pstmt.setString(2, surname);
@@ -186,7 +186,6 @@ public class Main_servlet extends HttpServlet {
 	    }
 	}
 
-	
 	public String hashPassword(String pswd) {
 		String password = pswd;
 		try {
@@ -258,8 +257,64 @@ public class Main_servlet extends HttpServlet {
 	    return matcher.matches();
 	}
 	
+	protected void overUsera(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			String meno = request.getParameter("login");
+			String heslo = request.getParameter("pwd");
+			Statement stmt = con.createStatement();
+			String sql = "SELECT MAX(idUsers) AS iid, COUNT(idUsers) AS pocet FROM Users WHERE E_mail='"+meno+"'AND Password = '"+ hashPassword(heslo) +"'";
+			ResultSet rs = stmt.executeQuery(sql);
+			rs.next();
+						
+			HttpSession session = request.getSession();
+			if(rs.getInt("pocet")==1) {//existuje jeden, takze OK
+				sql = "SELECT idUsers, Meno, Admin FROM Users WHERE E_mail = '"+meno+"'";
+				rs = stmt.executeQuery(sql);
+				rs.next();
+				session.setAttribute("ID", rs.getInt("idUsers"));
+				session.setAttribute("meno", rs.getString("Meno"));
+				session.setAttribute("JeAdmin", rs.getString("Admin"));
+				System.out.println("IduseraJe " + session.getAttribute("ID"));
+				System.out.println("MenoUseraJe " + session.getAttribute("meno"));
+				System.out.println("JeUserAdmin? " + session.getAttribute("JeAdmin"));
+				pozicia = "Prihlaseny používateľ";
+				this.meno = (String) session.getAttribute("meno");
+				
+				response.sendRedirect(request.getContextPath() + "/Main_servlet");
+				
+			} else {
+				out.println("Autorizacia sa nepodarila. Skontroluj prihlasovacie udaje.");
+				session.invalidate(); 		//zmazem sedenie
+			}
+			rs.close();
+			stmt.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("OverUsera " + e);
+		}
+	}
 	
+	protected void urobLogout(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		try {
+			response.sendRedirect(request.getContextPath() + "/Main_servlet");
 	
+			session.invalidate();
+			pozicia = "Neprihláseny zákaznik";
+			this.meno = "";
+			System.out.println("IduseraJe " + session.getAttribute("ID"));
+			System.out.println("MenoUseraJe " + session.getAttribute("meno"));
+			System.out.println("JeUserAdmin? " + session.getAttribute("JeAdmin"));
+			//response.sendRedirect(request.getContextPath() + "/Main_servlet");
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("IduseraJe " + session.getAttribute("ID"));
+			System.out.println("MenoUseraJe " + session.getAttribute("meno"));
+			System.out.println("JeUserAdmin? " + session.getAttribute("JeAdmin"));
+		}
+	}
 	
 	
 	
