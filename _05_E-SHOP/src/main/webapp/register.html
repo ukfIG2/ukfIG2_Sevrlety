@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="formular">
+        <form action="Main_servlet" method="post" onsubmit="return validatePassword()">
+            <input type="hidden" name="operacia" value="register">
+            Meno: <input type="text" name="name" required><br>
+            Priezvisko: <input type="text" name="surname" required><br>
+            Adresa: <input type="text" name="Adress" required><br>
+            Email: <input type="email" name="login" required><br>
+            Heslo: <input type="password" id="pwd" name="pwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&()\/])[A-Za-z\d@$!%*?&()\/]{8,128}$" oninput="updatePasswordRequirements()" required>
+            <br>
+            Potvrdenie hesla: <input type="password" id="confirmPwd" name="confirmPwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&()\/])[A-Za-z\d@$!%*?&()\/]{8,128}$" oninput="updatePasswordRequirements()" required>
+            <br>
+            <div id="requirementsMessage"></div>
+            <br>
+            <label for="togglePassword">
+                Show Password:
+                <input type="checkbox" id="togglePassword" onchange="togglePasswordVisibility()">
+            </label>
+            <br>
+            
+            <input type="submit" value="Registrovat">
+        </form>
+    </div>
+
+    <footer>
+
+    </footer>
+</body>
+</html>
