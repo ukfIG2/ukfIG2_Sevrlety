@@ -1,0 +1,43 @@
+Vytvorte e-shop ponúkajúci a predávajúci ľubovoľný tovar.
+
+    Vyžite vývojové prostredie Eclipse so štruktúrou webovej aplikácie (3 body).
+    Pribaľte súbor na vytvorenie a naplnenie databázy (bez neho je obchod nefunkčný!!! = 0 bodov) (2 body)
+
+Zabezpečte (dokončite) funkčnosť obchodu definovanú v prednáške (len na tomto mieste sa akceptuje použitie cudzieho kódu)
+
+    prihlasovanie na základe údajov v databáze (3 body)				hotovo
+    výpis tovaru a vkladanie do košíka (4 body)
+    výpis obsahu košíka (3 body)
+
+Pridajte stránku na registráciu (2 body):
+
+    s kontrolou na správne zadanie mailovej adresy (2 body)			hotovo - robene v html
+    s kontrolou existencie danej adresy v databáze userov (2 body)	hotovo
+
+Zabezpečte preklopenie košíka:
+
+    do databázy (3 body)
+    so synchronizáciou na pridelenie čísla objednávky (3 body)
+    kontrolou dostatku tovaru na sklade (4 body).
+
+Pridajte rozhranie na zobrazenie objednávok používateľa:
+
+    zoznam a stav objednávky (5 body)
+    položky objednávky (4 body)
+
+Pridajte admin rozhranie buď ako samostatný modul alebo ako súčasť obchodu, ktorá sa ponúkne po prihlásení adminovského konta (2 body) a v admin rozhraní umožnite:
+
+    zmenu stavu objednávky na spracovanú, odoslanú, zaplatenú (3 body)
+    vymazať objednávku (vrátane položiek) (2 body ak vymaže aj položky objednávky, 1 bod ak vymaže len objednávku)
+    meniť práva používateľa: admin, user - budu uchovávaní v databáze userov, admina pustí len do admin rozhrania a usera len do obchodu (3 body)
+
+Zatraktívnite dizajn aplikácie
+
+    vzhľad obchodu, použitie css, farby, štandardné rozloženie prvkov (12)
+    obrázky tovaru (8)
+
+Zabezpečte efektívne nakladanie s prostriedkami:
+
+    umožnite používanie jediného connection napriče celou aplikáciu jeho vytvorením pri prvom požiadaní (3 body),	hotovo
+     uložení do session (1 bod) a vracaním/získaním zo session pri každej ďalšej požiadavke (5 body)
+    zabezpečte uvoľnenie prostriedkov z db. servera po uvoľnení session (5 body)

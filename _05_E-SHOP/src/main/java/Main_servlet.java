@@ -30,7 +30,6 @@ public class Main_servlet extends HttpServlet {
 	private Connection con;
 	
 	private String pozicia = "Neprihláseny zákaznik";
-	private String meno = "";
        
     public Main_servlet() {
         super();
@@ -67,9 +66,10 @@ public class Main_servlet extends HttpServlet {
             
             head(out);
             
-            header(out);
+            header(out, request);
             
             bottom(out);
+            
             
            /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
@@ -105,7 +105,7 @@ public class Main_servlet extends HttpServlet {
 		doGet(request, response);
 	}
 
-	protected void head(PrintWriter out) {
+	public void head(PrintWriter out) {
 		out.println("<!DOCTYPE html>");
         out.println("<html lang='en'>");
         out.println("<head>");
@@ -118,15 +118,21 @@ public class Main_servlet extends HttpServlet {
         out.println("<body>");
 	}
 	
-	protected void bottom(PrintWriter out) {
+	public void bottom(PrintWriter out) {
         out.println("</body>");
         out.println("</html>");
 	}
 	
-	protected void header(PrintWriter out) {
+	public void header(PrintWriter out, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		System.out.println("Prihlaseny pouzivatel, je " + session.getAttribute("meno"));
 		out.println("<header>");
 		out.println("	<div class='pozdrav'>");
-		out.println("		<h1>Ahoj " + pozicia + " " + meno + "</h1>");
+		if(session.getAttribute("meno") == null) {
+			out.println("		<h1>Ahoj " + pozicia + "</h1>");
+		} else {
+		out.println("		<h1>Ahoj " + pozicia + " " + session.getAttribute("meno") + "</h1>");
+		}
 		out.println("	</div>");
 
 		if(pozicia.equals("Neprihláseny zákaznik")) {
@@ -144,12 +150,20 @@ public class Main_servlet extends HttpServlet {
 		    out.println("    </div>");
 		}
 	    
+		if(session.getAttribute("JeAdmin") == null) {
 	    out.println("    <div class='button-container'>");
 	    out.println("        <form action='register.html'>");
 	    out.println("            <button type='submit'>Registruj sa </button>");
 	    out.println("        </form>");
 	    out.println("    </div>");
-		;
+		} else {}
+		if (session.getAttribute("JeAdmin") != null && session.getAttribute("JeAdmin").equals("1")) {
+		    out.println("    <div class='button-container'>");
+		    out.println("        <form action='Admin_servlet'>");
+		    out.println("            <button type='submit'>Dig Administrátor </button>");
+		    out.println("        </form>");
+		    out.println("    </div>");
+		} else {}
 		out.println("</header>");
 	}
 																					 
@@ -278,7 +292,6 @@ public class Main_servlet extends HttpServlet {
 				System.out.println("MenoUseraJe " + session.getAttribute("meno"));
 				System.out.println("JeUserAdmin? " + session.getAttribute("JeAdmin"));
 				pozicia = "Prihlaseny používateľ";
-				this.meno = (String) session.getAttribute("meno");
 				
 				response.sendRedirect(request.getContextPath() + "/Main_servlet");
 				
@@ -301,7 +314,6 @@ public class Main_servlet extends HttpServlet {
 	
 			session.invalidate();
 			pozicia = "Neprihláseny zákaznik";
-			this.meno = "";
 			System.out.println("IduseraJe " + session.getAttribute("ID"));
 			System.out.println("MenoUseraJe " + session.getAttribute("meno"));
 			System.out.println("JeUserAdmin? " + session.getAttribute("JeAdmin"));

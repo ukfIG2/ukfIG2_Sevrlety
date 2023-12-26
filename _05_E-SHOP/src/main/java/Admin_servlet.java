@@ -4,12 +4,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Enumeration;
 
+/**
+ * Servlet implementation class Admin_servlet
+ */
 public class Admin_servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	public final static String databaza = "_04_E-SHOP";
@@ -17,7 +21,9 @@ public class Admin_servlet extends HttpServlet {
 	public final static String username = "root";
 	public final static String password = "";
 	private Connection con;
-       
+		
+	private String pozicia = "Neprihláseny zákaznik";
+
     public Admin_servlet() {
         super();
     }
@@ -46,63 +52,34 @@ public class Admin_servlet extends HttpServlet {
 				System.err.println("Pripojenie k databaze " + databaza + " NIE-je.");
 				return;
 			} else {System.out.println("Pripojenie k databaze " + databaza + " je.");}
+		
+			/*HttpSession session = request.getSession();
+			out.println(session.getAttribute("meno"));
+			if(session.getAttribute("JeAdmin").equals("1")) {
+				out.println("Je admin");
+			} else {
+				out.println("Nie si Admin. Zmizni");
+			}*/
 			
-            String operacia = request.getParameter("operacia");
-            
-            System.out.println("Operacia je: " + operacia);
-            
-            head(out);
-            
-            bottom(out);
-            
-           /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }
-            if (operacia.equals("register")) {registerUser(out, request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), request.getParameter("Nickname"), response, request);}
-            if (operacia.equals("login")) { overUsera(out, request); }
-            if (operacia.equals("PosT")) {postSomething(out, request);}
-            if (operacia.equals("refreshPage"));
-            if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
-            
-            if ("modifyBans".equals(operacia)) {
-                int bannerId = getUserID(request);
 
-                Enumeration<String> parameterNames = request.getParameterNames();
-                while (parameterNames.hasMoreElements()) {
-                    String paramName = parameterNames.nextElement();
-                    if (paramName.startsWith("banStatus_")) {
-                        int userId = Integer.parseInt(paramName.substring("banStatus_".length()));
-                        String banStatus = request.getParameter(paramName);
-                        updateBanStatus(bannerId, userId, "true".equals(banStatus));
-                    }
-                }
-            }
-            
-            int user_id = getUserID(request);
-            if (user_id == 0) { zobrazNeopravnenyPristup(out); return; }
-            
-            head(out);
-            
-            	vypisHlavicka(out, request);
-                        
-            	vypisPosty(out, request);
-            
-            	displayPostForm(out);
-            	
-            	showBanTable(out, request);
-            
-            legs(out);*/
-            
+			head(out);
+			header(out, request);
+			main(out);
+			bottom(out);
+			
             out.close();
 		} catch (Exception e) {
 			System.err.println("Servlet doGet " + e);
 		}
 	}
 
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//nepis nemaz													
+		//nepis nemaz
 		doGet(request, response);
 	}
 
-	protected void head(PrintWriter out) {
+	public void head(PrintWriter out) {
 		out.println("<!DOCTYPE html>");
         out.println("<html lang='en'>");
         out.println("<head>");
@@ -115,21 +92,51 @@ public class Admin_servlet extends HttpServlet {
         out.println("<body>");
 	}
 	
-	protected void bottom(PrintWriter out) {
+	public void bottom(PrintWriter out) {
         out.println("</body>");
         out.println("</html>");
 	}
 	
+	public void header(PrintWriter out, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		out.println("<header>");
+		out.println("	<div class='pozdrav'>");
+		if(session.getAttribute("meno") == null) {
+			out.println("		<h1>Ahoj " + pozicia + "</h1>");
+		} else {
+			pozicia = "Prihlaseny používateľ";
+		out.println("		<h1>Ahoj " + pozicia + " " + session.getAttribute("meno") + "</h1>");
+		}
+		out.println("	</div>");
+
+		if(pozicia.equals("Neprihláseny zákaznik")) {
+	    out.println("    <div class='button-container'>");
+	    out.println("        <form action='login.html'>");
+	    out.println("            <button type='submit'>Prihlás sa</button>");
+	    out.println("        </form>");
+	    out.println("    </div>");
+		} else if(pozicia.equals("Prihlaseny používateľ")) {
+		    out.println("    <div class='button-container'>");
+		    out.println("		<form method='post' action='Main_servlet'>");
+			out.println("			<input type='hidden' name='operacia' value='logout'>");
+			out.println("			<input type='submit' value='logout'>");
+		    out.println("        </form>");
+		    out.println("    </div>");
+		}
+	    
+		    out.println("    <div class='button-container'>");
+		    out.println("        <form action='Main_servlet'>");
+		    out.println("            <button type='submit'>Naspak na tovar </button>");
+		    out.println("        </form>");
+		    out.println("    </div>");
+			out.println("</header>");   			
+	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	private void main(PrintWriter out) {
+		out.println("<main>");
+		
+		out.println("</main>");
+	}
 	
 	
 	

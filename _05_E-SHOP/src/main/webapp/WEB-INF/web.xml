@@ -19,4 +19,14 @@
     <servlet-name>Main_servlet</servlet-name>
     <url-pattern>/Main_servlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>Admin_servlet</display-name>
+    <servlet-name>Admin_servlet</servlet-name>
+    <servlet-class>Admin_servlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Admin_servlet</servlet-name>
+    <url-pattern>/Admin_servlet</url-pattern>
+  </servlet-mapping>
 </web-app>
