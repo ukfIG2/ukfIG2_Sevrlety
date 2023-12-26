@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * Servlet implementation class Admin_servlet
@@ -46,6 +48,7 @@ public class Admin_servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();
+		HttpSession session = request.getSession();
 		try {
 			if(con==null) {
 				out.println("Neni pripojena databaza.");
@@ -53,21 +56,22 @@ public class Admin_servlet extends HttpServlet {
 				return;
 			} else {System.out.println("Pripojenie k databaze " + databaza + " je.");}
 		
-			/*HttpSession session = request.getSession();
-			out.println(session.getAttribute("meno"));
+			try {
 			if(session.getAttribute("JeAdmin").equals("1")) {
-				out.println("Je admin");
-			} else {
-				out.println("Nie si Admin. Zmizni");
-			}*/
-			
+				head(out);
+				header(out, request);
+				main(out);
+				bottom(out);
+				
+	            out.close();}
+	            else {
+					out.println("Nie si Admin. Zmizni.");
+					return;
+	            }}
+			catch (NullPointerException e) {
+				out.println("Nie si Admin. Zmizni..");
+			}
 
-			head(out);
-			header(out, request);
-			main(out);
-			bottom(out);
-			
-            out.close();
 		} catch (Exception e) {
 			System.err.println("Servlet doGet " + e);
 		}
@@ -133,9 +137,130 @@ public class Admin_servlet extends HttpServlet {
 	}
 	
 	private void main(PrintWriter out) {
+		try {
+			Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM Users";
+	        ResultSet rs = stmt.executeQuery(sql);
 		out.println("<main>");
+		out.println("	<div class=Tabulka>");
+		out.println("		<h2>Tabulka pouzivatelov</h2>");
+		out.println("		<table>");
+		out.println("			<tr>");
+		out.println("				<th>" + "ID" + "</th>");
+		out.println("				<th>" + "Meno" + "</th>");
+		out.println("				<th>" + "Priezvisko" + "</th>");
+		out.println("				<th>" + "E_mail" + "</th>");
+		out.println("				<th>" + "Adresa" + "</th>");
+		out.println("				<th>" + "Je Admin?" + "</th>");
+		out.println("				<th>" + "Má zľavu?" + "</th>");
+		out.println("				<th>" + "Poznámka k použivateľovi" + "</th>");
+		out.println("			</tr>");
+		while (rs.next()) {
+			out.println("			<tr>");
+			out.println("				<th>" + rs.getString("idUsers") + "</th>");
+			out.println("				<th>" + rs.getString("Meno") + "</th>");
+			out.println("				<th>" + rs.getString("Priezvisko") + "</th>");
+			out.println("				<th>" + rs.getString("E_mail") + "</th>");
+			out.println("				<th>" + rs.getString("Adresa") + "</th>");
+			out.println("				<th>" + ((rs.getString("Admin").equals("1")) ? "Je Admin" : "Je zakaznik") + "</th>");
+			out.println("				<th>" + (rs.getDouble("Zlava") == 0 ? "Nema zlavu" : rs.getDouble("Zlava") + "%") + "</th>");
+			out.println("				<th>" + (rs.getString("Poznamky_k_pouzivatelovi") == null ? "Zatedy nič" : rs.getString("Poznamky_k_pouzivatelovi")) + "</th>");
+			out.println("			</tr>");
+		}
+		out.println("		</table>");
+		out.println("	</div>");
+		//out.println("</main>");
+		rs.close();
+		stmt.close();
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
 		
+		try {
+			Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM Tovar";
+	        ResultSet rs = stmt.executeQuery(sql);
+		//out.println("<main>");
+		out.println("	<div class=Tabulka>");
+		out.println("		<h2>Tabulka tovaru</h2>");
+		out.println("		<table>");
+		out.println("			<tr>");
+		out.println("				<th>" + "ID" + "</th>");
+		out.println("				<th>" + "Značka" + "</th>");
+		out.println("				<th>" + "Modelova rada" + "</th>");
+		out.println("				<th>" + "Nazov" + "</th>");
+		out.println("				<th>" + "Procesor" + "</th>");
+		out.println("				<th>" + "Velkost operačnej pamäte" + "</th>");
+		out.println("				<th>" + "Uhlopriečka displeja" + "</th>");
+		out.println("				<th>" + "Cesta k fotke" + "</th>");
+		out.println("				<th>" + "Počet kusov" + "</th>");
+		out.println("				<th>" + "Cena za kus" + "</th>");
+		out.println("			</tr>");
+		while (rs.next()) {
+			out.println("			<tr>");
+			out.println("				<th>" + rs.getString("idTovaru") + "</th>");
+			out.println("				<th>" + rs.getString("Znacka") + "</th>");
+			out.println("				<th>" + rs.getString("Modelova_rada") + "</th>");
+			out.println("				<th>" + rs.getString("Nazov") + "</th>");
+			out.println("				<th>" + rs.getString("Procesor") + "</th>");
+			out.println("				<th>" + rs.getString("Velkost_operacnej_pamate") + "</th>");
+			out.println("				<th>" + rs.getString("Uhlopriecka_displeja") + "</th>");
+			out.println("				<th>" + rs.getString("Fotka") + "</th>");
+			out.println("				<th>" + rs.getInt("Pocet_kusov") + "</th>");
+			out.println("				<th>" + rs.getDouble("Uhlopriecka_displeja") + "</th>");
+			
+			
+			out.println("			</tr>");
+		}
+		out.println("		</table>");
+		out.println("	</div>");
+		//out.println("</main>");
+		
+		rs.close();
+		stmt.close();
+		
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
+		
+		try {
+			Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM Zoznam_objednavok INNER JOIN Users ON Users.idUsers=Zoznam_objednavok.idUsers";//v praxi sa to takto nerobí. Som si vedomí.
+	        ResultSet rs = stmt.executeQuery(sql);
+		//out.println("<main>");
+		out.println("	<div class=Tabulka>");
+		out.println("		<h2>Tabulka objednávok</h2>");
+		out.println("		<table>");
+		out.println("			<tr>");
+		out.println("				<th>" + "Číslo objednávky" + "</th>");
+		out.println("				<th>" + "id + Meno + Priezvisko zákazníka" + "</th>");
+		out.println("				<th>" + "Dátum objednávky" + "</th>");
+		out.println("				<th>" + "Suma objednávky(po zlave)" + "</th>");
+		out.println("				<th>" + "Stav objednávky" + "</th>");
+		out.println("			</tr>");
+		while (rs.next()) {
+			out.println("			<tr>");
+			out.println("				<th>" + rs.getString("Cislo_objednavky") + "</th>");
+			out.println("				<th>" + rs.getString("idUsers") + " " + rs.getString("Meno") + " " + rs.getString("Priezvisko") + "</th>");
+			out.println("				<th>" + rs.getDate("Datum_objednavky") + "</th>");
+			out.println("				<th>" + rs.getString("suma") + "</th>");
+			out.println("				<th>" + rs.getString("Stav_objednavky") + "</th>");
+
+			
+			
+			out.println("			</tr>");
+		}
+		out.println("		</table>");
+		out.println("	</div>");
 		out.println("</main>");
+		
+		rs.close();
+		stmt.close();
+		
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
+		
 	}
 	
 	

@@ -49,3 +49,12 @@ form {
 input[type="submit"] {
     margin-bottom: 0;
 }
+
+table {
+	border: 1px solid;
+}
+
+th {
+	border: 1px solid;
+	padding: 10px;
+}
