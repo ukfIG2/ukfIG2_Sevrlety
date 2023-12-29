@@ -75,10 +75,11 @@ public class Main_servlet extends HttpServlet {
             
            /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
-            if (operacia.equals("login")) { overUsera(out, request, response); }
-            /*if (operacia.equals("PosT")) {postSomething(out, request);}
-            if (operacia.equals("refreshPage"));*/
-            if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
+            else if (operacia.equals("login")) { overUsera(out, request, response); }
+            else if (operacia.equals("pridajDoKosika")) {pridajDoKosika(out, request, response);}
+            else if (operacia.equals("updateTovar")) {updateTovar(out, request, response);}
+            /*if (operacia.equals("refreshPage"));*/
+            else if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
             /*
              
             int user_id = getUserID(request);
@@ -343,7 +344,7 @@ public class Main_servlet extends HttpServlet {
             	out.println("<h3>Ak chceš pridávať veci do košíka, PRIHLÁS SA, ak si neni PRIHLÁSENÝ, REGISTRUJ SA.</h3>");
     		}
     		else {
-    			
+    			ukazKosik(out, request, null);
     			
     			
     		}
@@ -355,6 +356,19 @@ public class Main_servlet extends HttpServlet {
 	        	out.println("		<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "</p>");
 	        	out.println("		<p> Procesor: " + rs.getString("Procesor") + " Velkosť operačnej pamäte: " + rs.getString("Velkost_operacnej_pamate") + " GB Uhlopriečka: " + rs.getString("Uhlopriecka_displeja") + " palcov </p>");
 	        	out.println("		<p> Cena tovaru: " + rs.getString("Cena") + " EUR </p>");
+	        		if(session.getAttribute("JeAdmin") == null) {}
+	        		else if(session.getAttribute("JeAdmin").equals("0")) {
+		    	    out.println("    		<div class='button-container'>");
+		    	    out.println("        		<form action='Main_servlet'>");
+		    	    out.println("					<input type='number' name='pocetKS' value='1' min='1' max='99'>");
+			        out.println("                   <input type='hidden' name='idTovaru' value='" + rs.getString("idTovaru") + "'>");
+					out.println("					<input type='hidden' name='operacia' value='pridajDoKosika'>");
+					out.println("                   <input type='hidden' name='CenaTovaru' value='" + rs.getString("Cena") + "'>");
+		    	    out.println("            		<button type='submit'>Pridaj do košíka</button>");
+		    	   			
+		    	    out.println("       		</form>");
+		    	    out.println("    		</div>");
+		        	}
 	        	out.println("	</div>");
 	        }
     		out.println("</div>");
@@ -369,9 +383,176 @@ public class Main_servlet extends HttpServlet {
 		
 	}
 	
+	private void pridajDoKosika(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        HttpSession session = request.getSession();
+	        int idUser = (Integer) session.getAttribute("ID");
+	        int idTovaru = Integer.parseInt(request.getParameter("idTovaru"));
+	        int pocetKS = Integer.parseInt(request.getParameter("pocetKS"));
+
+
+	        // Check if the record already exists in Kosik for the given user and product
+	        String checkSql = "SELECT idKosika, Cena, Pocet_kusov FROM Kosik WHERE ID_Users = ? AND ID_Tovaru = ?";
+	        try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
+	            checkStmt.setInt(1, idUser);
+	            checkStmt.setInt(2, idTovaru);
+	            ResultSet resultSet = checkStmt.executeQuery();
+
+	            if (resultSet.next()) {
+	                // Record exists, update Pocet_kusov and recalculate Cena
+	                int existingPocetKusov = resultSet.getInt("Pocet_kusov");
+	                int newPocetKusov = existingPocetKusov + pocetKS;
+
+	                double lastKnownPrice = Double.parseDouble(request.getParameter("CenaTovaru"));
+	                double updatedPrice = lastKnownPrice * newPocetKusov;
+
+	                String updateSql = "UPDATE Kosik SET Pocet_kusov = ?, Cena = ? WHERE idKosika = ?";
+	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                    updateStmt.setInt(1, newPocetKusov);
+	                    updateStmt.setDouble(2, updatedPrice);
+	                    updateStmt.setInt(3, resultSet.getInt("idKosika"));
+	                    int rowCount = updateStmt.executeUpdate();
+	                    System.out.println("Rows updated: " + rowCount);
+	        	        System.out.println("Pocet kusov - " + newPocetKusov);
+	        	        System.out.println("updated price - " + updatedPrice);
+	        	        System.out.println("last prize - " + lastKnownPrice);
+	                    try {
+							response.sendRedirect(request.getContextPath() + "/Main_servlet");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	                }
+	            } else {
+	                // Record does not exist, insert a new record
+	                // Assuming the initial price is set based on the product's base price
+	                double basePrice = Double.parseDouble(request.getParameter("CenaTovaru"));
+	                double initialPrice = basePrice * pocetKS;
+
+	                String insertSql = "INSERT INTO Kosik (`ID_Users`, `ID_Tovaru`, Cena, `Pocet_kusov`) VALUES (?, ?, ?, ?)";
+	                try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
+	                    insertStmt.setInt(1, idUser);
+	                    insertStmt.setInt(2, idTovaru);
+	                    insertStmt.setDouble(3, initialPrice);
+	                    insertStmt.setInt(4, pocetKS);
+	                    int rowCount = insertStmt.executeUpdate();
+	                    System.out.println("Rows inserted: " + rowCount);
+	                    try {
+							response.sendRedirect(request.getContextPath() + "/Main_servlet");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+	                }
+	            }
+	        } catch (SQLIntegrityConstraintViolationException e) {
+	            System.out.println("Chyba Kosiku: " + e.getMessage());
+	            // Handle or log the exception
+	        }
+	    } catch (NumberFormatException e) {
+	        System.err.println("NumberFormatException: " + e.getMessage());
+	        // Handle or log the exception
+	    } catch (SQLException e) {
+	        System.err.println("Error in pridajDoKosika: " + e);
+	        e.printStackTrace();
+	    }
+	}
+
+
+	private void ukazKosik(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			HttpSession session = request.getSession();
+			Statement stmt = con.createStatement();
+	        String sql = "SELECT K.ID_Users AS UserK, K.ID_Tovaru AS Tovar, K.Cena AS CenaSpolu, T.Znacka, T.Modelova_rada, T.Nazov, K.Pocet_kusov, Fotka, idKosika, T.Cena AS CenaZK FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru = T.idTovaru WHERE K.ID_Users =" + session.getAttribute("ID");
+	        ResultSet rs = stmt.executeQuery(sql);
+        	
+        	while(rs.next()) {
+        		out.println("	<div class=Tovar_V_Kosiku>");
+        		out.println("		<img src='" + rs.getString("Fotka") + "' alt='" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "'>");
+	        	out.println("		<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "</p>");
+	    	    out.println("        		<form action='Main_servlet'>");
+	        	out.println("		<p>Počet kusov: <input type='number' name='pocetKS' value='" + rs.getString("Pocet_kusov") + "' min='1' max='99'>" + " za cenu jedného kusu " + rs.getString("CenaZK") + " je dokopy " + rs.getString("CenaSpolu") + " EUR.</p>");
+				out.println("                   <input type='hidden' name='idKosika' value='" + rs.getString("idKosika") + "'>");
+				out.println("					<input type='hidden' name='operacia' value='updateTovar'>");
+	    	    out.println("            		<button type='submit'>Prepočítaj Tovar</button>");
+	        	out.println("       		</form>");
+        		out.println("	</div>");
+	        }
+
+		
+		rs.close();
+		stmt.close();
+		
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
+	}
 	
-	
-	
+	// Update the existing updateTovar method
+	private void updateTovar(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        HttpSession session = request.getSession();
+	        int idUser = (Integer) session.getAttribute("ID");
+	        int idKosika = Integer.parseInt(request.getParameter("idKosika"));
+	        int newPocetKusov = Integer.parseInt(request.getParameter("pocetKS"));
+
+	        // Get the last known price from the Tovar table
+	        String lastKnownPriceSql = "SELECT T.Cena AS CenaZK FROM Tovar T INNER JOIN Kosik K ON K.ID_Tovaru = T.idTovaru WHERE K.idKosika = ?";
+	        try (PreparedStatement lastKnownPriceStmt = con.prepareStatement(lastKnownPriceSql)) {
+	            lastKnownPriceStmt.setInt(1, idKosika);
+	            ResultSet lastKnownPriceRs = lastKnownPriceStmt.executeQuery();
+
+	            if (lastKnownPriceRs.next()) {
+	                double lastKnownPrice = lastKnownPriceRs.getDouble("CenaZK");
+
+	                // Recalculate the total price
+	                double updatedPrice = lastKnownPrice * newPocetKusov;
+
+	                // Update the item in the shopping cart
+	                String updateSql = "UPDATE Kosik SET Pocet_kusov = ?, Cena = ? WHERE idKosika = ?";
+	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                    updateStmt.setInt(1, newPocetKusov);
+	                    updateStmt.setDouble(2, updatedPrice);
+	                    updateStmt.setInt(3, idKosika);
+	                    int rowCount = updateStmt.executeUpdate();
+	                    System.out.println("Rows updated: " + rowCount);
+	                }
+	            }
+
+	            lastKnownPriceRs.close();
+	        }
+
+	        // Redirect back to the shopping cart page
+	        response.sendRedirect(request.getContextPath() + "/Main_servlet");
+	    } catch (NumberFormatException | SQLException | IOException e) {
+	        System.err.println("Error in updateTovar: " + e);
+	        e.printStackTrace();
+	    }
+	}
+
+	private double getCenaZaKus(int idTovaru) {
+	    double cenaZaKus = 0.0;
+
+	    try {
+	        String sql = "SELECT Cena FROM Tovar WHERE idTovaru = ?";
+	        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+	            stmt.setInt(1, idTovaru);
+	            ResultSet rs = stmt.executeQuery();
+
+	            if (rs.next()) {
+	                cenaZaKus = rs.getDouble("Cena");
+	            }
+
+	            rs.close();
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("Error in getCenaZaKus: " + e);
+	        e.printStackTrace();
+	    }
+
+	    return cenaZaKus;
+	}
+
 	
 	
 }

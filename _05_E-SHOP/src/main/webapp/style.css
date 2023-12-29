@@ -67,9 +67,10 @@ main{
 .Kosik{
 	width: 20%;
 	height: 100%;
-	border-style:solid;
+	/*border-style:solid;
 	border-color: black;
-	border-width: 5px;
+	border-width: 5px;*/
+	padding: 10px
 }
 
 .Tovary{
@@ -79,10 +80,12 @@ main{
 
 .Tovar{
 	width: 30%;
-	border-style:solid;
+	/*border-style:solid;
 	border-color: black;
-	border-width: 5px;
+	border-width: 5px;*/
+	padding: 10px;
 	margin: 20px;
+
 
 }
 
