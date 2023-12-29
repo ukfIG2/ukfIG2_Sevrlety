@@ -68,6 +68,8 @@ public class Main_servlet extends HttpServlet {
             
             header(out, request);
             
+            main(out, request);
+            
             bottom(out);
             
             
@@ -328,7 +330,44 @@ public class Main_servlet extends HttpServlet {
 		}
 	}
 	
-	
+	private void main(PrintWriter out, HttpServletRequest request) {
+		try {
+			HttpSession session = request.getSession();
+			Statement stmt = con.createStatement();
+	        String sql = "SELECT * FROM Tovar";
+	        ResultSet rs = stmt.executeQuery(sql);
+        	out.println("<main>");
+    		out.println("<div class ='Kosik'>");
+    		out.println("<h2>Košík:</h2>");
+    		if(session.getAttribute("JeAdmin") == null) {
+            	out.println("<h3>Ak chceš pridávať veci do košíka, PRIHLÁS SA, ak si neni PRIHLÁSENÝ, REGISTRUJ SA.</h3>");
+    		}
+    		else {
+    			
+    			
+    			
+    		}
+    		out.println("</div>");
+    		out.println("<div class ='Tovary'>");
+        	while(rs.next()) {
+	        	out.println("	<div class=Tovar>");
+	        	out.println("		<img src='" + rs.getString("Fotka") + "' alt='" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "'>");
+	        	out.println("		<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "</p>");
+	        	out.println("		<p> Procesor: " + rs.getString("Procesor") + " Velkosť operačnej pamäte: " + rs.getString("Velkost_operacnej_pamate") + " GB Uhlopriečka: " + rs.getString("Uhlopriecka_displeja") + " palcov </p>");
+	        	out.println("		<p> Cena tovaru: " + rs.getString("Cena") + " EUR </p>");
+	        	out.println("	</div>");
+	        }
+    		out.println("</div>");
+	        out.println("</main>");
+		
+		rs.close();
+		stmt.close();
+		
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
+		
+	}
 	
 	
 	

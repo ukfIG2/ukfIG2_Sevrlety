@@ -58,3 +58,34 @@ th {
 	border: 1px solid;
 	padding: 10px;
 }
+
+main{
+	display: flex;
+	flex-direction: row;
+}
+
+.Kosik{
+	width: 20%;
+	height: 100%;
+	border-style:solid;
+	border-color: black;
+	border-width: 5px;
+}
+
+.Tovary{
+	display: flex;
+	flex-direction: row;
+}
+
+.Tovar{
+	width: 30%;
+	border-style:solid;
+	border-color: black;
+	border-width: 5px;
+	margin: 20px;
+
+}
+
+img{
+	width: 100%;
+}

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -58,6 +59,11 @@ public class Admin_servlet extends HttpServlet {
 		
 			try {
 			if(session.getAttribute("JeAdmin").equals("1")) {
+				 String operacia = request.getParameter("operacia");
+
+				    if ("ZmenaAdminPrav".equals(operacia)) {
+				        ZmenaAdminPrav(out, request, response);
+				    }
 				head(out);
 				header(out, request);
 				main(out);
@@ -141,8 +147,8 @@ public class Admin_servlet extends HttpServlet {
 			Statement stmt = con.createStatement();
 	        String sql = "SELECT * FROM Users";
 	        ResultSet rs = stmt.executeQuery(sql);
-		out.println("<main>");
-		out.println("	<div class=Tabulka>");
+		out.println("<div class='main'>");
+		out.println("	<div class='Tabulka'>");
 		out.println("		<h2>Tabulka pouzivatelov</h2>");
 		out.println("		<table>");
 		out.println("			<tr>");
@@ -165,6 +171,13 @@ public class Admin_servlet extends HttpServlet {
 			out.println("				<th>" + ((rs.getString("Admin").equals("1")) ? "Je Admin" : "Je zakaznik") + "</th>");
 			out.println("				<th>" + (rs.getDouble("Zlava") == 0 ? "Nema zlavu" : rs.getDouble("Zlava") + "%") + "</th>");
 			out.println("				<th>" + (rs.getString("Poznamky_k_pouzivatelovi") == null ? "Zatedy nič" : rs.getString("Poznamky_k_pouzivatelovi")) + "</th>");
+	        out.println("               <th>");
+	        out.println("                    <form action='Admin_servlet' method='post'>");
+	        out.println("                        <input type='hidden' name='operacia' value='ZmenaAdminPrav'>");
+	        out.println("                        <input type='hidden' name='userId' value='" + rs.getString("idUsers") + "'>");
+	        out.println("                        <button type='submit'>Toggle Admin</button>");
+	        out.println("                    </form>");
+	        out.println("               </th>");
 			out.println("			</tr>");
 		}
 		out.println("		</table>");
@@ -207,7 +220,7 @@ public class Admin_servlet extends HttpServlet {
 			out.println("				<th>" + rs.getString("Uhlopriecka_displeja") + "</th>");
 			out.println("				<th>" + rs.getString("Fotka") + "</th>");
 			out.println("				<th>" + rs.getInt("Pocet_kusov") + "</th>");
-			out.println("				<th>" + rs.getDouble("Uhlopriecka_displeja") + "</th>");
+			out.println("				<th>" + rs.getDouble("Cena") + "</th>");
 			
 			
 			out.println("			</tr>");
@@ -228,7 +241,7 @@ public class Admin_servlet extends HttpServlet {
 	        String sql = "SELECT * FROM Zoznam_objednavok INNER JOIN Users ON Users.idUsers=Zoznam_objednavok.idUsers";//v praxi sa to takto nerobí. Som si vedomí.
 	        ResultSet rs = stmt.executeQuery(sql);
 		//out.println("<main>");
-		out.println("	<div class=Tabulka>");
+		out.println("	<div class='Tabulka'>");
 		out.println("		<h2>Tabulka objednávok</h2>");
 		out.println("		<table>");
 		out.println("			<tr>");
@@ -252,7 +265,7 @@ public class Admin_servlet extends HttpServlet {
 		}
 		out.println("		</table>");
 		out.println("	</div>");
-		out.println("</main>");
+		out.println("</div>");
 		
 		rs.close();
 		stmt.close();
@@ -263,6 +276,34 @@ public class Admin_servlet extends HttpServlet {
 		
 	}
 	
+	private void ZmenaAdminPrav(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession();
+	        try {
+	            String userId = request.getParameter("userId");
+	            if (userId != null) {
+	                String updateQuery = "UPDATE Users SET Admin = (CASE WHEN Admin = 0 THEN 1 ELSE 0 END) WHERE idUsers = ?";
+	                try (PreparedStatement pstmt = con.prepareStatement(updateQuery)) {
+	                    pstmt.setString(1, userId);
+	                    
+	                    int rowsAffected = pstmt.executeUpdate();
+
+	                    if (rowsAffected > 0) {
+	                        response.getWriter().println("Admin status updated successfully.");
+	                    } else {
+	                        response.getWriter().println("User not found or admin status not updated.");
+	                    }
+	                }
+	            } else {
+	                response.getWriter().println("Invalid user ID.");
+	            }
+	        } catch (Exception e) {
+	            try {
+					response.getWriter().println("Error updating admin status: " + e.getMessage());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+	        }
+	    }
 	
 	
 	

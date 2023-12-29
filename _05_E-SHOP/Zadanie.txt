@@ -29,7 +29,7 @@ Pridajte admin rozhranie buď ako samostatný modul alebo ako súčasť obchodu,
 
     zmenu stavu objednávky na spracovanú, odoslanú, zaplatenú (3 body)
     vymazať objednávku (vrátane položiek) (2 body ak vymaže aj položky objednávky, 1 bod ak vymaže len objednávku)
-    meniť práva používateľa: admin, user - budu uchovávaní v databáze userov, admina pustí len do admin rozhrania a usera len do obchodu (3 body)
+    meniť práva používateľa: admin, user - budu uchovávaní v databáze userov, admina pustí len do admin rozhrania a usera len do obchodu (3 body) 
 
 Zatraktívnite dizajn aplikácie
 
@@ -39,5 +39,5 @@ Zatraktívnite dizajn aplikácie
 Zabezpečte efektívne nakladanie s prostriedkami:
 
     umožnite používanie jediného connection napriče celou aplikáciu jeho vytvorením pri prvom požiadaní (3 body),	hotovo
-     uložení do session (1 bod) a vracaním/získaním zo session pri každej ďalšej požiadavke (5 body)
+     uložení do session (1 bod) a vracaním/získaním zo session pri každej ďalšej požiadavke (5 body)				
     zabezpečte uvoľnenie prostriedkov z db. servera po uvoľnení session (5 body)
