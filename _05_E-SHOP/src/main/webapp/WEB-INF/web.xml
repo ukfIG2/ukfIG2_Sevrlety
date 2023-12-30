@@ -29,4 +29,14 @@
     <servlet-name>Admin_servlet</servlet-name>
     <url-pattern>/Admin_servlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>Objednavky_servlet</display-name>
+    <servlet-name>Objednavky_servlet</servlet-name>
+    <servlet-class>Objednavky_servlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Objednavky_servlet</servlet-name>
+    <url-pattern>/Objednavky_servlet</url-pattern>
+  </servlet-mapping>
 </web-app>

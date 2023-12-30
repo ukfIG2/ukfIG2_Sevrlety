@@ -16,20 +16,20 @@ Pridajte stránku na registráciu (2 body):							hotovo
 
 Zabezpečte preklopenie košíka:
 
-    do databázy (3 body)
-    so synchronizáciou na pridelenie čísla objednávky (3 body)
-    kontrolou dostatku tovaru na sklade (4 body).
+    do databázy (3 body)											hotovo ako je to myslene, že uložiť košík v databáze
+    so synchronizáciou na pridelenie čísla objednávky (3 body)		asi hotovo
+    kontrolou dostatku tovaru na sklade (4 body).					hotovo
 
 Pridajte rozhranie na zobrazenie objednávok používateľa:
 
-    zoznam a stav objednávky (5 body)
-    položky objednávky (4 body)
+    zoznam a stav objednávky (5 body)								hotovo
+    položky objednávky (4 body)										hotovo
 
 Pridajte admin rozhranie buď ako samostatný modul alebo ako súčasť obchodu, ktorá sa ponúkne po prihlásení adminovského konta (2 body) a v admin rozhraní umožnite:
 
     zmenu stavu objednávky na spracovanú, odoslanú, zaplatenú (3 body)
     vymazať objednávku (vrátane položiek) (2 body ak vymaže aj položky objednávky, 1 bod ak vymaže len objednávku)
-    meniť práva používateľa: admin, user - budu uchovávaní v databáze userov, admina pustí len do admin rozhrania a usera len do obchodu (3 body) 
+    meniť práva používateľa: admin, user - budu uchovávaní v databáze userov, admina pustí len do admin rozhrania a usera len do obchodu (3 body)  nieco hotovo
 
 Zatraktívnite dizajn aplikácie
 
