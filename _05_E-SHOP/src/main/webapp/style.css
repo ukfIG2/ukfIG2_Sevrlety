@@ -67,23 +67,28 @@ main{
 .Kosik{
 	width: 20%;
 	height: 100%;
-	/*border-style:solid;
-	border-color: black;
-	border-width: 5px;*/
-	padding: 10px
+	border-style:solid;
+	border-color: blue;
+	border-width: 5px;
+	padding: 10px;
+	margin: 10px;
 }
 
 .Tovary{
 	display: flex;
 	flex-direction: row;
+	
+		border-style:solid;
+	border-color: black;
+	border-width: 5px;
 }
 
 .Tovar{
 	width: 30%;
 	/*border-style:solid;
 	border-color: black;
-	border-width: 5px;*/
-	padding: 10px;
+	border-width: 5px;
+	padding: 10px;*/
 	margin: 20px;
 
 
@@ -92,3 +97,15 @@ main{
 img{
 	width: 100%;
 }
+
+footer{
+	width: 100%;
+	border-style:solid;
+	border-color: red;
+	border-width: 5px;
+	padding: 10px;
+	margin: 20px;
+
+	
+	
+	}

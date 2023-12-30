@@ -49,7 +49,7 @@ public class Main_servlet extends HttpServlet {
 		try {con.close();} catch(Exception e) {System.err.println("V destroy: " + e);	
 		}
 	}
-
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();
@@ -70,8 +70,8 @@ public class Main_servlet extends HttpServlet {
             
             main(out, request);
             
-            bottom(out);
-            
+            bottom(out, request);
+            //System.out.println(getCenaZaKus(6, 1));
             
            /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
@@ -80,22 +80,6 @@ public class Main_servlet extends HttpServlet {
             else if (operacia.equals("updateTovar")) {updateTovar(out, request, response);}
             /*if (operacia.equals("refreshPage"));*/
             else if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
-            /*
-             
-            int user_id = getUserID(request);
-            if (user_id == 0) { zobrazNeopravnenyPristup(out); return; }
-            
-            head(out);
-            
-            	vypisHlavicka(out, request);
-                        
-            	vypisPosty(out, request);
-            
-            	displayPostForm(out);
-            	
-            	showBanTable(out, request);
-            
-            legs(out);*/
             
             out.close();
 		} catch (Exception e) {
@@ -121,7 +105,15 @@ public class Main_servlet extends HttpServlet {
         out.println("<body>");
 	}
 	
-	public void bottom(PrintWriter out) {
+	public void bottom(PrintWriter out, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		out.println("<footer>");
+		if(session.getAttribute("JeAdmin") == null) {}
+		else if(session.getAttribute("JeAdmin").equals("0")) {
+		out.println("	<a href='Objednavky_servlet'>Préjsť na objednávky</a>");
+		} else {}
+		out.println("</footer>");
+
         out.println("</body>");
         out.println("</html>");
 	}
@@ -355,7 +347,10 @@ public class Main_servlet extends HttpServlet {
 	        	out.println("		<img src='" + rs.getString("Fotka") + "' alt='" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "'>");
 	        	out.println("		<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "</p>");
 	        	out.println("		<p> Procesor: " + rs.getString("Procesor") + " Velkosť operačnej pamäte: " + rs.getString("Velkost_operacnej_pamate") + " GB Uhlopriečka: " + rs.getString("Uhlopriecka_displeja") + " palcov </p>");
-	        	out.println("		<p> Cena tovaru: " + rs.getString("Cena") + " EUR </p>");
+	        	if(session.getAttribute("ID") == null) {out.println("		<p> Cena tovaru: " + rs.getDouble("Cena") + " EUR </p>");}
+	        	else {
+	        	out.println("		<p> Cena tovaru: " + getCenaZaKus(Integer.parseInt(rs.getString("idTovaru")), (Integer)session.getAttribute("ID")) + " EUR </p>");
+	        	}
 	        		if(session.getAttribute("JeAdmin") == null) {}
 	        		else if(session.getAttribute("JeAdmin").equals("0")) {
 		    	    out.println("    		<div class='button-container'>");
@@ -363,7 +358,7 @@ public class Main_servlet extends HttpServlet {
 		    	    out.println("					<input type='number' name='pocetKS' value='1' min='1' max='99'>");
 			        out.println("                   <input type='hidden' name='idTovaru' value='" + rs.getString("idTovaru") + "'>");
 					out.println("					<input type='hidden' name='operacia' value='pridajDoKosika'>");
-					out.println("                   <input type='hidden' name='CenaTovaru' value='" + rs.getString("Cena") + "'>");
+					out.println("                   <input type='hidden' name='CenaTovaru' value='" + getCenaZaKus(Integer.parseInt(rs.getString("idTovaru")), (Integer)session.getAttribute("ID")) + "'>");
 		    	    out.println("            		<button type='submit'>Pridaj do košíka</button>");
 		    	   			
 		    	    out.println("       		</form>");
@@ -465,20 +460,29 @@ public class Main_servlet extends HttpServlet {
 			Statement stmt = con.createStatement();
 	        String sql = "SELECT K.ID_Users AS UserK, K.ID_Tovaru AS Tovar, K.Cena AS CenaSpolu, T.Znacka, T.Modelova_rada, T.Nazov, K.Pocet_kusov, Fotka, idKosika, T.Cena AS CenaZK FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru = T.idTovaru WHERE K.ID_Users =" + session.getAttribute("ID");
 	        ResultSet rs = stmt.executeQuery(sql);
+	        int IDUSER = 0;
         	
         	while(rs.next()) {
         		out.println("	<div class=Tovar_V_Kosiku>");
         		out.println("		<img src='" + rs.getString("Fotka") + "' alt='" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "'>");
 	        	out.println("		<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + "</p>");
 	    	    out.println("        		<form action='Main_servlet'>");
-	        	out.println("		<p>Počet kusov: <input type='number' name='pocetKS' value='" + rs.getString("Pocet_kusov") + "' min='1' max='99'>" + " za cenu jedného kusu " + rs.getString("CenaZK") + " je dokopy " + rs.getString("CenaSpolu") + " EUR.</p>");
+	        	out.println("		<p>Počet kusov: <input type='number' name='pocetKS' value='" + rs.getString("Pocet_kusov") + "' min='1' max='99'>" + " za cenu jedného kusu " + getCenaZaKus(Integer.parseInt(rs.getString("Tovar")), (Integer)session.getAttribute("ID")) + " je dokopy " + rs.getString("CenaSpolu") + " EUR.</p>");
 				out.println("                   <input type='hidden' name='idKosika' value='" + rs.getString("idKosika") + "'>");
 				out.println("					<input type='hidden' name='operacia' value='updateTovar'>");
 	    	    out.println("            		<button type='submit'>Prepočítaj Tovar</button>");
 	        	out.println("       		</form>");
         		out.println("	</div>");
+        		IDUSER = rs.getInt("UserK");
 	        }
-
+        	out.println("<br><br>");
+    		out.println("	<div class='button-container'>");
+    		out.println("        <form action='Main_servlet'>");
+    		out.println("		 	<input type='hidden' name='operacia' value='updateTovar'>");
+    		out.println("        	<input type='hidden' name='idUser' value='" + IDUSER + "'>");
+    		out.println("        	<button type='submit'>Urob objednávku</button>");
+    		out.println("        </form>");
+    		out.println("	</div>");
 		
 		rs.close();
 		stmt.close();
@@ -497,14 +501,15 @@ public class Main_servlet extends HttpServlet {
 	        int newPocetKusov = Integer.parseInt(request.getParameter("pocetKS"));
 
 	        // Get the last known price from the Tovar table
-	        String lastKnownPriceSql = "SELECT T.Cena AS CenaZK FROM Tovar T INNER JOIN Kosik K ON K.ID_Tovaru = T.idTovaru WHERE K.idKosika = ?";
+	        String lastKnownPriceSql = "SELECT * FROM Tovar T INNER JOIN Kosik K ON K.ID_Tovaru = T.idTovaru /*WHERE K.idKosika;;*/ INNER JOIN Users U ON K.ID_Users=U.idUsers WHERE K.idKosika = ?";
 	        try (PreparedStatement lastKnownPriceStmt = con.prepareStatement(lastKnownPriceSql)) {
 	            lastKnownPriceStmt.setInt(1, idKosika);
 	            ResultSet lastKnownPriceRs = lastKnownPriceStmt.executeQuery();
 
 	            if (lastKnownPriceRs.next()) {
-	                double lastKnownPrice = lastKnownPriceRs.getDouble("CenaZK");
-
+	                //double lastKnownPrice = lastKnownPriceRs.getDouble("CenaZK");
+	            	double lastKnownPrice = getCenaZaKus(Integer.parseInt(lastKnownPriceRs.getString("idTovaru")), (Integer)session.getAttribute("ID"));
+	            	
 	                // Recalculate the total price
 	                double updatedPrice = lastKnownPrice * newPocetKusov;
 
@@ -530,29 +535,43 @@ public class Main_servlet extends HttpServlet {
 	    }
 	}
 
-	private double getCenaZaKus(int idTovaru) {
+	private double getCenaZaKus(int idTovaru, int idUsers) {
 	    double cenaZaKus = 0.0;
+	    double zlava = 0.0;
+	    double finalnaCena = 0.0;
 
 	    try {
-	        String sql = "SELECT Cena FROM Tovar WHERE idTovaru = ?";
+	        String sql = "SELECT Cena, Zlava FROM Tovar INNER JOIN Users WHERE idTovaru = ? AND idUsers = ?";
 	        try (PreparedStatement stmt = con.prepareStatement(sql)) {
 	            stmt.setInt(1, idTovaru);
+	            stmt.setInt(2, idUsers);
 	            ResultSet rs = stmt.executeQuery();
 
 	            if (rs.next()) {
 	                cenaZaKus = rs.getDouble("Cena");
+	                zlava = rs.getDouble("Zlava");
 	            }
-
+	            
+	            finalnaCena = Math.round((cenaZaKus / 100) * (100 - zlava) * 100) / 100.0; // Round and divide by 100.0
 	            rs.close();
 	        }
 	    } catch (SQLException e) {
 	        System.err.println("Error in getCenaZaKus: " + e);
 	        e.printStackTrace();
 	    }
-
-	    return cenaZaKus;
+	    return finalnaCena;
 	}
 
+	private void urobObjednavku() {
+	synchronized (this) {
+		
+	}	
+	}
+	
+	private void dostatokTovaru(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		
+	}
 	
 	
 }

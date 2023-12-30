@@ -1,15 +1,15 @@
 Vytvorte e-shop ponúkajúci a predávajúci ľubovoľný tovar.
 
-    Vyžite vývojové prostredie Eclipse so štruktúrou webovej aplikácie (3 body).
+    Vyžite vývojové prostredie Eclipse so štruktúrou webovej aplikácie (3 body).								asi hotovo
     Pribaľte súbor na vytvorenie a naplnenie databázy (bez neho je obchod nefunkčný!!! = 0 bodov) (2 body)
 
 Zabezpečte (dokončite) funkčnosť obchodu definovanú v prednáške (len na tomto mieste sa akceptuje použitie cudzieho kódu)
 
     prihlasovanie na základe údajov v databáze (3 body)				hotovo
-    výpis tovaru a vkladanie do košíka (4 body)
-    výpis obsahu košíka (3 body)
+    výpis tovaru a vkladanie do košíka (4 body)						hotovo
+    výpis obsahu košíka (3 body)									hotovo
 
-Pridajte stránku na registráciu (2 body):
+Pridajte stránku na registráciu (2 body):							hotovo
 
     s kontrolou na správne zadanie mailovej adresy (2 body)			hotovo - robene v html
     s kontrolou existencie danej adresy v databáze userov (2 body)	hotovo
