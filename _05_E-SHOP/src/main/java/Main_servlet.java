@@ -72,13 +72,15 @@ public class Main_servlet extends HttpServlet {
             
             bottom(out, request);
             //System.out.println(getCenaZaKus(6, 1));
+            //System.out.println(ocislujObjednavku(out, request, response));
+            
             
            /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
             else if (operacia.equals("login")) { overUsera(out, request, response); }
             else if (operacia.equals("pridajDoKosika")) {pridajDoKosika(out, request, response);}
             else if (operacia.equals("updateTovar")) {updateTovar(out, request, response);}
-            /*if (operacia.equals("refreshPage"));*/
+            else if (operacia.equals("urobObjednavku")) {urobObjednavku(out, request, response);}
             else if (operacia.equals("logout")) { urobLogout(out, request, response); return; }
             
             out.close();
@@ -478,7 +480,7 @@ public class Main_servlet extends HttpServlet {
         	out.println("<br><br>");
     		out.println("	<div class='button-container'>");
     		out.println("        <form action='Main_servlet'>");
-    		out.println("		 	<input type='hidden' name='operacia' value='updateTovar'>");
+    		out.println("		 	<input type='hidden' name='operacia' value='urobObjednavku'>");
     		out.println("        	<input type='hidden' name='idUser' value='" + IDUSER + "'>");
     		out.println("        	<button type='submit'>Urob objednávku</button>");
     		out.println("        </form>");
@@ -562,16 +564,284 @@ public class Main_servlet extends HttpServlet {
 	    return finalnaCena;
 	}
 
-	private void urobObjednavku() {
+	private void urobObjednavku(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
 	synchronized (this) {
-		
+		if (dostatokTovaru(out, request, response)) {
+			String CisloObj = ocislujObjednavku(out, request, response);
+			zapisObjednavky(CisloObj, request);
+		}
 	}	
 	}
 	
-	private void dostatokTovaru(HttpServletRequest request) {
+	private boolean dostatokTovaru(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+		boolean vysledok = true;
+		try {
 		HttpSession session = request.getSession();
-		
+		Statement stmt = con.createStatement();
+        String sql = "SELECT Znacka, Modelova_rada, Nazov, K.idKosika, T.idTovaru, K.Pocet_kusov AS KusovVKosiku, T.Pocet_kusov AS KusovNaSklade FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru=T.idTovaru WHERE ID_Users =" + session.getAttribute("ID");
+        ResultSet rs = stmt.executeQuery(sql);
+        
+        while(rs.next()) {
+        	if (rs.getInt("KusovVKosiku") > rs.getInt("KusovNaSklade")) {
+        		vysledok = false;
+        		//out.println("<p>" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + " máme nasklade iba " + rs.getString("KusovNaSklade") + ", vy chcete " + rs.getString("KusovVKosiku") + ".</p>");
+        		out.println("<script>alert('" + rs.getString("Znacka") + " " + rs.getString("Modelova_rada") + " " + rs.getString("Nazov") + " máme nasklade iba " + rs.getString("KusovNaSklade") + ", vy chcete " + rs.getString("KusovVKosiku") + "');</script>"); 
+        	}
+        	else {}
+        }
+        
+        rs.close();
+		stmt.close();
+		} catch (Exception e) {
+			System.out.println("V doGet 01: " + e);
+			}
+        return vysledok;
 	}
+	
+	private String ocislujObjednavku(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
+	    String cislo_Objednavky = "0";
+	    
+	    try {
+	        HttpSession session = request.getSession();
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT YEAR(CURDATE()) AS current_year, MONTH(CURDATE()) AS current_month, DAY(CURDATE()) AS current_day, (SELECT COUNT(Cislo_objednavky) FROM Zoznam_objednavok WHERE DATE(Datum_objednavky) = CURDATE()) AS order_count";
+	        
+	        ResultSet rs = stmt.executeQuery(sql);
+	        
+	        if (rs.next()) { // Move to the first row
+	            cislo_Objednavky = rs.getString("current_year") + "/" +
+	                              rs.getString("current_month") + "/" +
+	                              rs.getString("current_day") + "/" +
+	                              String.valueOf(rs.getInt("order_count") + 1);
+	        }
+	        
+	        rs.close();
+	        stmt.close();
+	    } catch (Exception e) {
+	        System.err.println("V ocisluj_Objednavku: " + e);
+	    }
+	    
+	    return cislo_Objednavky;
+	}
+
+	/*private void zapisObjednavky(String CisloObjednavky, HttpServletRequest request) {
+	    double Suma_dokopy = 0;
+	    try {
+	        HttpSession session = request.getSession();
+	        Statement stmt = con.createStatement();
+	        String sql = "SELECT Znacka, Modelova_rada, Nazov, K.idKosika, T.idTovaru, K.Pocet_kusov AS KusovVKosiku, T.Pocet_kusov AS KusovNaSklade FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru=T.idTovaru WHERE ID_Users =" + session.getAttribute("ID") + "; ";
+
+	        ResultSet rs = stmt.executeQuery(sql);
+
+	        while (rs.next()) {
+	            try {
+	                String updateSql = "UPDATE Tovar SET Pocet_kusov = ? WHERE idTovaru = ?";
+	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                    updateStmt.setInt(1, rs.getInt("KusovNaSklade") - rs.getInt("KusovVKosiku"));
+	                    updateStmt.setInt(2, rs.getInt("idTovaru"));
+	                    int rowCount = updateStmt.executeUpdate();
+	                    System.out.println("Rows updated in UpdateTovar_pocetKuov nasklade: " + rowCount);
+	                }
+	            } catch (Exception e) {
+	                System.err.println("V Zmen mnozstvo tovaru na sklade: " + e);
+	            }
+
+	            try {
+	                String updateSql = "DELETE FROM Kosik WHERE idKosika = ?";
+	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                    updateStmt.setInt(1, rs.getInt("idKosika"));
+	                    int rowCount = updateStmt.executeUpdate();
+	                    System.out.println("Rows updated in: Delete From kosik " + rowCount);
+	                }
+	            } catch (Exception e) {
+	                System.err.println("Vo vymazani kosika: " + e);
+	            }
+
+	            try {
+	                String insertSQL = "INSERT INTO Polozky_objednavky (`Cena_za_kus`, `Pocet_kusov`, `Cislo_objednavky`, idTovaru) VALUES (?, ?, ?, ?)";
+	                try (PreparedStatement insertStmt = con.prepareStatement(insertSQL)) {
+	                    insertStmt.setDouble(1, getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")));
+
+	                    Suma_dokopy += getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID"));
+
+	                    insertStmt.setInt(2, rs.getInt("KusovVKosiku"));
+	                    insertStmt.setString(3, CisloObjednavky);
+	                    insertStmt.setInt(4, rs.getInt("idTovaru"));
+	                    int rowCount = insertStmt.executeUpdate();
+	                    System.out.println("Rows inserted: insert into zoznam objednavok" + rowCount);
+	                }
+	            } catch (Exception e) {
+	                System.err.println("Vo vytvoreni polozky pre objednavku: " + e);
+	            }
+	        } // WHILE in ROWS
+
+	        // Close ResultSet and Statement after the loop
+	        rs.close();
+	        stmt.close();
+
+	        // Create the order after closing the ResultSet and Statement
+	        String insertSql = "INSERT INTO Zoznam_objednavok (`Cislo_objednavky`, `idUsers`, `Datum_objednavky`, suma, `Stav_objednavky`) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
+	        try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
+	            insertStmt.setString(1, CisloObjednavky);
+	            insertStmt.setInt(2, (Integer) session.getAttribute("ID"));
+	            insertStmt.setDouble(3, Suma_dokopy);
+	            insertStmt.setString(4, "Spracuváva SA");
+	            int rowCount = insertStmt.executeUpdate();
+	            System.out.println("Rows inserted: zoznam objednavok " + rowCount);
+	        } catch (Exception e) {
+	            System.err.println("Vo vytvorit objednavku " + e);
+	        }
+	    } catch (Exception e) {
+	        System.err.println("V Zapis objednavku: " + e);
+	    }
+	}*/
+
+	/*private void zapisObjednavky(String CisloObjednavky, HttpServletRequest request) {
+	    double Suma_dokopy = 0;
+	    try {
+	        HttpSession session = request.getSession();
+	        String insertSqlZoznam = "INSERT INTO Zoznam_objednavok (`Cislo_objednavky`, `idUsers`, `Datum_objednavky`, suma, `Stav_objednavky`) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
+
+	        try (PreparedStatement insertStmtZoznam = con.prepareStatement(insertSqlZoznam)) {
+	            Statement stmt = con.createStatement();
+	            String sql = "SELECT Znacka, Modelova_rada, Nazov, K.idKosika, T.idTovaru, K.Pocet_kusov AS KusovVKosiku, T.Pocet_kusov AS KusovNaSklade FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru=T.idTovaru WHERE ID_Users =" + session.getAttribute("ID") + "; ";
+
+	            ResultSet rs = stmt.executeQuery(sql);
+
+	            while (rs.next()) {
+	                try {
+	                    String updateSql = "UPDATE Tovar SET Pocet_kusov = ? WHERE idTovaru = ?";
+	                    try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                        updateStmt.setInt(1, rs.getInt("KusovNaSklade") - rs.getInt("KusovVKosiku"));
+	                        updateStmt.setInt(2, rs.getInt("idTovaru"));
+	                        int rowCount = updateStmt.executeUpdate();
+	                        System.out.println("Rows updated in UpdateTovar_pocetKuov nasklade: " + rowCount);
+	                    }
+	                } catch (Exception e) {
+	                    System.err.println("V Zmen mnozstvo tovaru na sklade: " + e);
+	                }
+
+	                try {
+	                    String updateSql = "DELETE FROM Kosik WHERE idKosika = ?";
+	                    try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+	                        updateStmt.setInt(1, rs.getInt("idKosika"));
+	                        int rowCount = updateStmt.executeUpdate();
+	                        System.out.println("Rows updated in: Delete From kosik " + rowCount);
+	                    }
+	                } catch (Exception e) {
+	                    System.err.println("Vo vymazani kosika: " + e);
+	                }
+
+	                // Calculate Suma_dokopy
+	                Suma_dokopy += getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID"));
+	            } // WHILE in ROWS
+
+	            // Close ResultSet and Statement after the loop
+	            rs.close();
+	            
+	            // Create the order after closing the ResultSet and Statement
+	            insertStmtZoznam.setString(1, CisloObjednavky);
+	            insertStmtZoznam.setInt(2, (Integer) session.getAttribute("ID"));
+	            insertStmtZoznam.setDouble(3, Suma_dokopy);
+	            insertStmtZoznam.setString(4, "Spracuváva SA");
+	            int rowCountZoznam = insertStmtZoznam.executeUpdate();
+	            System.out.println("Rows inserted into Zoznam_objednavok: " + rowCountZoznam);
+
+	            // Insert into Polozky_objednavky
+	            String insertSqlPolozky = "INSERT INTO Polozky_objednavky (`Cena_za_kus`, `Pocet_kusov`, `Cislo_objednavky`, idTovaru) VALUES (?, ?, ?, ?)";
+	            try (PreparedStatement insertStmtPolozky = con.prepareStatement(insertSqlPolozky)) {
+	                rs = stmt.executeQuery(sql);
+
+	                while (rs.next()) {
+	                    insertStmtPolozky.setDouble(1, getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")));
+	                    insertStmtPolozky.setInt(2, rs.getInt("KusovVKosiku"));
+	                    insertStmtPolozky.setString(3, CisloObjednavky);
+	                    insertStmtPolozky.setInt(4, rs.getInt("idTovaru"));
+	                    int rowCountPolozky = insertStmtPolozky.executeUpdate();
+	                    System.out.println("Rows inserted into Polozky_objednavky: " + rowCountPolozky);
+	                }
+	            }
+
+	            // Close Statement after the loop
+	            stmt.close();
+	        }
+	    } catch (Exception e) {
+	        System.err.println("V Zapis objednavku: " + e);
+	    }
+	}*/
+
+	private void zapisObjednavky(String CisloObjednavky, HttpServletRequest request) {
+	    double Suma_dokopy = 0;
+	    try {
+	        HttpSession session = request.getSession();
+	        String insertSqlZoznam = "INSERT INTO Zoznam_objednavok (`Cislo_objednavky`, `idUsers`, `Datum_objednavky`, `suma`, `Stav_objednavky`) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
+
+	        try (PreparedStatement insertStmtZoznam = con.prepareStatement(insertSqlZoznam)) {
+	            // Create the order
+	            insertStmtZoznam.setString(1, CisloObjednavky);
+	            insertStmtZoznam.setInt(2, (Integer) session.getAttribute("ID"));
+	            insertStmtZoznam.setDouble(3, Suma_dokopy);
+	            insertStmtZoznam.setString(4, "Spracuváva SA");
+	            int rowCountZoznam = insertStmtZoznam.executeUpdate();
+	            System.out.println("Rows inserted into Zoznam_objednavok: " + rowCountZoznam);
+
+	            // Insert into Polozky_objednavky
+	            String insertSqlPolozky = "INSERT INTO Polozky_objednavky (`Cena_za_kus`, `Pocet_kusov`, `Cislo_objednavky`, `idTovaru`) VALUES (?, ?, ?, ?)";
+	            try (PreparedStatement insertStmtPolozky = con.prepareStatement(insertSqlPolozky)) {
+	                Statement stmt = con.createStatement();
+	                String sql = "SELECT Znacka, Modelova_rada, Nazov, K.idKosika, T.idTovaru, K.Pocet_kusov AS KusovVKosiku, T.Pocet_kusov AS KusovNaSklade FROM Kosik K INNER JOIN Tovar T ON K.ID_Tovaru=T.idTovaru WHERE ID_Users =" + session.getAttribute("ID") + "; ";
+	                ResultSet rs = stmt.executeQuery(sql);
+
+	                while (rs.next()) {
+	                    // Insert into Polozky_objednavky
+	                	insertStmtPolozky.setDouble(1, Math.round(getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")) * rs.getDouble("KusovVKosiku") * 100.0) / 100.0);
+
+	                    insertStmtPolozky.setInt(2, rs.getInt("KusovVKosiku"));
+	                    insertStmtPolozky.setString(3, CisloObjednavky);
+	                    insertStmtPolozky.setInt(4, rs.getInt("idTovaru"));
+	                    int rowCountPolozky = insertStmtPolozky.executeUpdate();
+	                    System.out.println("Rows inserted into Polozky_objednavky: " + rowCountPolozky);
+
+	                    // Calculate Suma_dokopy
+	                    Suma_dokopy += Math.round(getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")) * rs.getDouble("KusovVKosiku") * 100.0) / 100.0;
+
+	                    // Update Tovar
+	                    String updateSqlTovar = "UPDATE Tovar SET Pocet_kusov = ? WHERE idTovaru = ?";
+	                    try (PreparedStatement updateStmtTovar = con.prepareStatement(updateSqlTovar)) {
+	                        updateStmtTovar.setInt(1, rs.getInt("KusovNaSklade") - rs.getInt("KusovVKosiku"));
+	                        updateStmtTovar.setInt(2, rs.getInt("idTovaru"));
+	                        int rowCountTovar = updateStmtTovar.executeUpdate();
+	                        System.out.println("Rows updated in UpdateTovar_pocetKuov nasklade: " + rowCountTovar);
+	                    }
+
+	                    // Delete from Kosik
+	                    String deleteSqlKosik = "DELETE FROM Kosik WHERE idKosika = ?";
+	                    try (PreparedStatement deleteStmtKosik = con.prepareStatement(deleteSqlKosik)) {
+	                        deleteStmtKosik.setInt(1, rs.getInt("idKosika"));
+	                        int rowCountKosik = deleteStmtKosik.executeUpdate();
+	                        System.out.println("Rows updated in: Delete From kosik " + rowCountKosik);
+	                    }
+	                } // WHILE in ROWS
+
+	                // Close ResultSet and Statement after the loop
+	                rs.close();
+
+	                // Update Zoznam_objednavok with Suma_dokopy
+	                String updateSqlZoznamSuma = "UPDATE Zoznam_objednavok SET suma = ? WHERE Cislo_objednavky = ?";
+	                try (PreparedStatement updateStmtZoznamSuma = con.prepareStatement(updateSqlZoznamSuma)) {
+	                    updateStmtZoznamSuma.setDouble(1, Suma_dokopy);
+	                    updateStmtZoznamSuma.setString(2, CisloObjednavky);
+	                    int rowCountZoznamSuma = updateStmtZoznamSuma.executeUpdate();
+	                    System.out.println("Rows updated in Update Zoznam_objednavok with Suma_dokopy: " + rowCountZoznamSuma);
+	                }
+	            }
+	        }
+	    } catch (Exception e) {
+	        System.err.println("V Zapis objednavku: " + e);
+	    }
+	}
+
+
 	
 	
 }
