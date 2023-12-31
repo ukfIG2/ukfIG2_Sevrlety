@@ -71,11 +71,12 @@ public class Main_servlet extends HttpServlet {
             main(out, request);
             
             bottom(out, request);
+            
             //System.out.println(getCenaZaKus(6, 1));
             //System.out.println(ocislujObjednavku(out, request, response));
             
             
-           /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/
+           /* if (operacia == null) { zobrazNeopravnenyPristup(out); return; }*/ //Naročky to tam nedávam
             if (operacia.equals("register")) {registerUser(out, request.getParameter("name"), request.getParameter("surname"), request.getParameter("Adress"), request.getParameter("login"), request.getParameter("pwd"), request.getParameter("confirmPwd"), response, request);}
             else if (operacia.equals("login")) { overUsera(out, request, response); }
             else if (operacia.equals("pridajDoKosika")) {pridajDoKosika(out, request, response);}
@@ -317,7 +318,6 @@ public class Main_servlet extends HttpServlet {
 			//response.sendRedirect(request.getContextPath() + "/Main_servlet");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("IduseraJe " + session.getAttribute("ID"));
 			System.out.println("MenoUseraJe " + session.getAttribute("meno"));
@@ -375,7 +375,7 @@ public class Main_servlet extends HttpServlet {
 		stmt.close();
 		
 		} catch (Exception e) {
-			System.out.println("V doGet 01: " + e);
+			System.err.println("V Ukazat všetky tovary: " + e);
 			}
 		
 	}
@@ -387,8 +387,6 @@ public class Main_servlet extends HttpServlet {
 	        int idTovaru = Integer.parseInt(request.getParameter("idTovaru"));
 	        int pocetKS = Integer.parseInt(request.getParameter("pocetKS"));
 
-
-	        // Check if the record already exists in Kosik for the given user and product
 	        String checkSql = "SELECT idKosika, Cena, Pocet_kusov FROM Kosik WHERE ID_Users = ? AND ID_Tovaru = ?";
 	        try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
 	            checkStmt.setInt(1, idUser);
@@ -396,7 +394,6 @@ public class Main_servlet extends HttpServlet {
 	            ResultSet resultSet = checkStmt.executeQuery();
 
 	            if (resultSet.next()) {
-	                // Record exists, update Pocet_kusov and recalculate Cena
 	                int existingPocetKusov = resultSet.getInt("Pocet_kusov");
 	                int newPocetKusov = existingPocetKusov + pocetKS;
 
@@ -416,13 +413,12 @@ public class Main_servlet extends HttpServlet {
 	                    try {
 							response.sendRedirect(request.getContextPath() + "/Main_servlet");
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.err.println("V kontrole kosika uz tovarje " + e);
+							
 						}
 	                }
 	            } else {
-	                // Record does not exist, insert a new record
-	                // Assuming the initial price is set based on the product's base price
+
 	                double basePrice = Double.parseDouble(request.getParameter("CenaTovaru"));
 	                double initialPrice = basePrice * pocetKS;
 
@@ -437,18 +433,15 @@ public class Main_servlet extends HttpServlet {
 	                    try {
 							response.sendRedirect(request.getContextPath() + "/Main_servlet");
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.err.println("V kontrole kosika tovar este neni " + e);
 						}
 	                }
 	            }
 	        } catch (SQLIntegrityConstraintViolationException e) {
-	            System.out.println("Chyba Kosiku: " + e.getMessage());
-	            // Handle or log the exception
+	            System.err.println("Chyba Kosiku: " + e.getMessage());
 	        }
 	    } catch (NumberFormatException e) {
 	        System.err.println("NumberFormatException: " + e.getMessage());
-	        // Handle or log the exception
 	    } catch (SQLException e) {
 	        System.err.println("Error in pridajDoKosika: " + e);
 	        e.printStackTrace();
@@ -494,7 +487,6 @@ public class Main_servlet extends HttpServlet {
 			}
 	}
 	
-	// Update the existing updateTovar method
 	private void updateTovar(PrintWriter out, HttpServletRequest request, HttpServletResponse response) {
 	    try {
 	        HttpSession session = request.getSession();
@@ -502,20 +494,16 @@ public class Main_servlet extends HttpServlet {
 	        int idKosika = Integer.parseInt(request.getParameter("idKosika"));
 	        int newPocetKusov = Integer.parseInt(request.getParameter("pocetKS"));
 
-	        // Get the last known price from the Tovar table
 	        String lastKnownPriceSql = "SELECT * FROM Tovar T INNER JOIN Kosik K ON K.ID_Tovaru = T.idTovaru /*WHERE K.idKosika;;*/ INNER JOIN Users U ON K.ID_Users=U.idUsers WHERE K.idKosika = ?";
 	        try (PreparedStatement lastKnownPriceStmt = con.prepareStatement(lastKnownPriceSql)) {
 	            lastKnownPriceStmt.setInt(1, idKosika);
 	            ResultSet lastKnownPriceRs = lastKnownPriceStmt.executeQuery();
 
 	            if (lastKnownPriceRs.next()) {
-	                //double lastKnownPrice = lastKnownPriceRs.getDouble("CenaZK");
 	            	double lastKnownPrice = getCenaZaKus(Integer.parseInt(lastKnownPriceRs.getString("idTovaru")), (Integer)session.getAttribute("ID"));
 	            	
-	                // Recalculate the total price
 	                double updatedPrice = lastKnownPrice * newPocetKusov;
 
-	                // Update the item in the shopping cart
 	                String updateSql = "UPDATE Kosik SET Pocet_kusov = ?, Cena = ? WHERE idKosika = ?";
 	                try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
 	                    updateStmt.setInt(1, newPocetKusov);
@@ -529,7 +517,6 @@ public class Main_servlet extends HttpServlet {
 	            lastKnownPriceRs.close();
 	        }
 
-	        // Redirect back to the shopping cart page
 	        response.sendRedirect(request.getContextPath() + "/Main_servlet");
 	    } catch (NumberFormatException | SQLException | IOException e) {
 	        System.err.println("Error in updateTovar: " + e);
@@ -608,7 +595,7 @@ public class Main_servlet extends HttpServlet {
 	        
 	        ResultSet rs = stmt.executeQuery(sql);
 	        
-	        if (rs.next()) { // Move to the first row
+	        if (rs.next()) { 
 	            cislo_Objednavky = rs.getString("current_year") + "/" +
 	                              rs.getString("current_month") + "/" +
 	                              rs.getString("current_day") + "/" +
@@ -631,7 +618,6 @@ public class Main_servlet extends HttpServlet {
 	        String insertSqlZoznam = "INSERT INTO Zoznam_objednavok (`Cislo_objednavky`, `idUsers`, `Datum_objednavky`, `suma`, `Stav_objednavky`) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
 
 	        try (PreparedStatement insertStmtZoznam = con.prepareStatement(insertSqlZoznam)) {
-	            // Create the order
 	            insertStmtZoznam.setString(1, CisloObjednavky);
 	            insertStmtZoznam.setInt(2, (Integer) session.getAttribute("ID"));
 	            insertStmtZoznam.setDouble(3, Suma_dokopy);
@@ -639,7 +625,6 @@ public class Main_servlet extends HttpServlet {
 	            int rowCountZoznam = insertStmtZoznam.executeUpdate();
 	            System.out.println("Rows inserted into Zoznam_objednavok: " + rowCountZoznam);
 
-	            // Insert into Polozky_objednavky
 	            String insertSqlPolozky = "INSERT INTO Polozky_objednavky (`Cena_za_kus`, `Pocet_kusov`, `Cislo_objednavky`, `idTovaru`) VALUES (?, ?, ?, ?)";
 	            try (PreparedStatement insertStmtPolozky = con.prepareStatement(insertSqlPolozky)) {
 	                Statement stmt = con.createStatement();
@@ -647,7 +632,6 @@ public class Main_servlet extends HttpServlet {
 	                ResultSet rs = stmt.executeQuery(sql);
 
 	                while (rs.next()) {
-	                    // Insert into Polozky_objednavky
 	                	insertStmtPolozky.setDouble(1, Math.round(getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")) * rs.getDouble("KusovVKosiku") * 100.0) / 100.0);
 
 	                    insertStmtPolozky.setInt(2, rs.getInt("KusovVKosiku"));
@@ -656,10 +640,8 @@ public class Main_servlet extends HttpServlet {
 	                    int rowCountPolozky = insertStmtPolozky.executeUpdate();
 	                    System.out.println("Rows inserted into Polozky_objednavky: " + rowCountPolozky);
 
-	                    // Calculate Suma_dokopy
 	                    Suma_dokopy += Math.round(getCenaZaKus(rs.getInt("idTovaru"), (Integer) session.getAttribute("ID")) * rs.getDouble("KusovVKosiku") * 100.0) / 100.0;
 
-	                    // Update Tovar
 	                    String updateSqlTovar = "UPDATE Tovar SET Pocet_kusov = ? WHERE idTovaru = ?";
 	                    try (PreparedStatement updateStmtTovar = con.prepareStatement(updateSqlTovar)) {
 	                        updateStmtTovar.setInt(1, rs.getInt("KusovNaSklade") - rs.getInt("KusovVKosiku"));
@@ -668,7 +650,6 @@ public class Main_servlet extends HttpServlet {
 	                        System.out.println("Rows updated in UpdateTovar_pocetKuov nasklade: " + rowCountTovar);
 	                    }
 
-	                    // Delete from Kosik
 	                    String deleteSqlKosik = "DELETE FROM Kosik WHERE idKosika = ?";
 	                    try (PreparedStatement deleteStmtKosik = con.prepareStatement(deleteSqlKosik)) {
 	                        deleteStmtKosik.setInt(1, rs.getInt("idKosika"));
@@ -677,10 +658,8 @@ public class Main_servlet extends HttpServlet {
 	                    }
 	                } // WHILE in ROWS
 
-	                // Close ResultSet and Statement after the loop
 	                rs.close();
 
-	                // Update Zoznam_objednavok with Suma_dokopy
 	                String updateSqlZoznamSuma = "UPDATE Zoznam_objednavok SET suma = ? WHERE Cislo_objednavky = ?";
 	                try (PreparedStatement updateStmtZoznamSuma = con.prepareStatement(updateSqlZoznamSuma)) {
 	                    updateStmtZoznamSuma.setDouble(1, Suma_dokopy);

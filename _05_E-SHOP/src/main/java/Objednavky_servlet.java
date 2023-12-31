@@ -123,8 +123,8 @@ public class Objednavky_servlet extends HttpServlet {
 
 		if(pozicia.equals("Neprihláseny zákaznik")) {
 	    out.println("    <div class='button-container'>");
-	    out.println("        <form action='login.html'>");
-	    out.println("            <button type='submit'>Prihlás sa</button>");
+	    out.println("        <form action='Main_servlet'>");
+	    out.println("            <button type='submit'>Domov</button>");
 	    out.println("        </form>");
 	    out.println("    </div>");
 		} else if(pozicia.equals("Prihlaseny používateľ")) {

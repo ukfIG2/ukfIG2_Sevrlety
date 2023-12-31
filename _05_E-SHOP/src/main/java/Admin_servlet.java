@@ -260,7 +260,21 @@ public class Admin_servlet extends HttpServlet {
 			out.println("				<th>" + rs.getString("Stav_objednavky") + "</th>");
 
 			
-			
+			out.println("			<tr>");
+		    out.println("				<td colspan='7'>");
+		    out.println("					<form method='post' action='Objednavky_servlet'>");
+		    out.println("						<label for='novyStav_" + rs.getString("Cislo_objednavky") + "'>Nový stav:</label>");
+		    out.println("						<select id='novyStav_" + rs.getString("Cislo_objednavky") + "' name='novyStav'>");
+		    out.println("							<option value='Spracuvava sa'>Spracuvava sa</option>");
+		    out.println("							<option value='Odoslane'>Odoslane</option>");
+		    out.println("							<option value='Vybavene'>Vybavene</option>");
+		    out.println("						</select>");
+		    out.println("						<input type='hidden' name='cisloObjednavky' value='" + rs.getString("Cislo_objednavky") + "'>");
+		    out.println("						<input type='hidden' name='operacia' value='zmenStav'>");
+		    out.println("						<button type='submit'>Zmeniť stav</button>");
+		    out.println("					</form>");
+		    out.println("				</td>");
+		    out.println("			</tr>");
 			out.println("			</tr>");
 		}
 		out.println("		</table>");
