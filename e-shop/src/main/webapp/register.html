@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<script src="https://cdn.tailwindcss.com"></script>
+<body class="flex justify-center items-center bg-blue-800" style="height: 100vh;">
+	 <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+          <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                  Create and account
+              </h1>
+              <form class="space-y-4 md:space-y-6" action="mainServlet">
+				  <input type="hidden" name="operacia" value="register">
+                  <div>
+                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your first name</label>
+                      <input name="first_name" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 -700 dark:border-gray-600  :ring-blue-500 :border-blue-500" placeholder="First Name" required="">
+                  </div>
+                  <div>
+                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your last name</label>
+                      <input name="last_name" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 -700 dark:border-gray-600  :ring-blue-500 :border-blue-500" placeholder="Last Name" required="">
+                  </div>
+                  <div>
+                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your address</label>
+                      <input name="address" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 -700 dark:border-gray-600  :ring-blue-500 :border-blue-500" placeholder="Address" required="">
+                  </div>
+                  <div>
+                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your email</label>
+                      <input name="email" type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 -700 dark:border-gray-600  :ring-blue-500 :border-blue-500" placeholder="name@company.com" required="">
+                  </div>
+                  <div>
+                      <label for="password" class="block mb-2 text-sm font-medium text-gray-900 ">Password</label>
+                      <input name="password" type="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5  dark:border-gray-600 -400  :ring-blue-500 :border-blue-500" required="">
+                  </div>
+                  <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center -600 dark:hover:bg-blue-700 :ring-blue-800">Create an account</button>
+                  <p class="text-sm font-light text-gray-500 -400">
+                      Already have an account? <a href="index.html" class="font-medium text-blue-600 hover:underline">Login here</a>
+                  </p>
+              </form>
+          </div>
+      </div>
+      <script>
+		  const queryString = window.location.search;
+		  (queryString)? alert("user already exists"): null
+	  </script>
+      
+</body>
+</html>
