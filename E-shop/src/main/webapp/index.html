@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tesco</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    form {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    input[type="submit"] {
+        background-color: #333;
+        color: #fff;
+        cursor: pointer;
+    }
+    input[type="submit"]:hover {
+        background-color: #555;
+    }
+    h2 {
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+    <h1>Tesco</h1>
+    <h2>Prihlaste sa</h2>
+    <form action="mainServlet" method ="get">
+        <input type="hidden" name="operacia" value="login">
+        Login:<br>
+        <input type="text" name="login"><br>
+        Heslo:<br>
+        <input type="password" name="pwd"><br>
+        <input type="submit" name="login">
+    </form>
+    
+    <h2>Registrácia nového používateľa</h2>
+    <form action="registraciaServlet" method="get">
+        Meno:<br>
+        <input type="text" name="meno"><br>
+        Priezvisko:<br>
+        <input type="text" name="priezvisko"><br>
+        Adresa:<br>
+        <input type="text" name="adresa"><br>
+        Login:<br>
+        <input type="text" name="login"><br>
+        Heslo:<br>
+        <input type="password" name="heslo"><br>
+        <input type="submit" value="Registrovať">
+    </form>
+</body>
+</html>
