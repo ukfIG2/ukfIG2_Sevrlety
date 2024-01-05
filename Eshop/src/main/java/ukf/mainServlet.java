@@ -249,8 +249,8 @@ public class mainServlet extends HttpServlet {
 			      out.println("<div class='d-flex flex-column justify-content-start align-items-start mx-3'>");	
 				   out.println("<h2>Objednávky</h2>");
 			      while (rs.next()) {
-			    	  	if(rs.getInt("ID_pouzivatela")==id) continue;
-			    	  	else {
+			    	  /*	if(rs.getInt("ID_pouzivatela")==id) continue;
+			    	  	else {*/
 			    	  		 out.println("<div class='d-flex flex-row justify-content-between align-items-center w-75'>");	
 			    	  		  out.println("<p><strong>"+rs.getString("obj_cislo")+
 	    	                            ":</strong>"+rs.getString("suma") +" EUR, dátum objednávky: "+rs.getString("datum_objednavky")+", stav: "+rs.getString("stav")+"</p>");
@@ -271,7 +271,7 @@ public class mainServlet extends HttpServlet {
 				    	    
 				    	    out.println("<select name='stav' class='form-select' id='stav'> "
 				    	    		+ "<option value='odoslaná'>Odoslaná</option>"
-				    	    		+ "<option value=s'spracovaná'>Spracovaná</option>"
+				    	    		+ "<option value='spracovaná'>Spracovaná</option>"
 				    	    		+ "<option value='zaplatená'>Zaplatená</option>"
 				    	    		+ "</select>");
 				    	    out.println("<div class='d-flex flex-row align-items-center'>");	
@@ -291,7 +291,7 @@ public class mainServlet extends HttpServlet {
 				    	    
 			    	  	}
 			    	    
-			    	  }
+//			    	  }
 			    	  rs.close(); 
 			    	  stmt.close();
 			    	  out.println("</div>");

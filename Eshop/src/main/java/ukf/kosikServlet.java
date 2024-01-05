@@ -232,9 +232,9 @@ public class kosikServlet extends HttpServlet {
 				   try {
 				      Statement stmt = con.createStatement();
 				      ResultSet rs = stmt.executeQuery("select * from kosik WHERE ID_pouzivatela= "+id);
-				      if (rs.next() == false) {
+				    /*  if (rs.next() == false) {
 				          prazdny=true;
-				        }
+				        }*/
 
 				      while (rs.next()) {
 				    	  aktCena = rs.getInt("cena");
@@ -247,6 +247,7 @@ public class kosikServlet extends HttpServlet {
 					 	            sql += "'" + aktCena + "', "; 
 					 	            sql += "'" + rs.getInt("ks") + "') ";
 					 	           int pocet = stmt2.executeUpdate(sql);
+					 	           System.out.println(pocet);
 					 	  
 					 	           stmt2.close();  				 	           
 				    	  }
