@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="formular">
+        <form action="Main_servlet" method="post" ">
+            <input type="hidden" name="operacia" value="register">
+            Meno: <input type="text" name="name" required><br>
+            Priezvisko: <input type="text" name="surname" required><br>
+            Email: <input type="email" name="Email" required><br>
+            Heslo: <input type="password" id="pwd" name="pwd" required>
+       
+            <br>
+            
+            <input type="submit" value="Registrovat">
+        </form>
+    </div>
+
+    <footer>
+
+    </footer>
+</body>
+</html>
